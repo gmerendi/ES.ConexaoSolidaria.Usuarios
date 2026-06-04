@@ -29,11 +29,12 @@ public class UsuarioController : ControllerBase
     /// <summary>Cadastrar novo doador</summary>
     [HttpPost]
     [ProducesResponseType(typeof(CriarUsuarioResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando criação de usuario: " + request.Email, request);
+        _logger.LogInformation("Iniciando criação de usuario: " + request.Email, request.NomeCompleto);
         var command = new CriarUsuarioCommand(request.NomeCompleto, request.Email, request.Cpf, request.Password);
         
         var result = await _criarUsuarioHandler.HandleAsync(command, ct);

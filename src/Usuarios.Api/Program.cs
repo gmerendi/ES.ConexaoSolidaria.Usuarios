@@ -1,7 +1,8 @@
+using Usuarios.Api.Configuration;
 using Usuarios.Api.Extensions;
-using Usuarios.Infrastructure.Extensions;
-using Usuarios.Application.Extensions;
 using Usuarios.Api.Middlewares;
+using Usuarios.Application.Extensions;
+using Usuarios.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var logCounter = 0;
@@ -28,7 +29,7 @@ logger.LogInformation(" ***** ({0}/{1}) - Inicializando Users API ", logCounter+
 // ── Api
 // ──────────────────────────────────────────────────────────────────────────────
 logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Endpoints ", logCounter++, logTotal);
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigurarMensagensDeValidacaoCustomizadas().ConfigurarErrosDeValidacaoCustomizados();
 builder.Services.AddEndpointsApiExplorer();
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Endpoints ", logCounter, logTotal);
 

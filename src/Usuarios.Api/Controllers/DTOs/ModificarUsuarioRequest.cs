@@ -3,21 +3,21 @@
 namespace Usuarios.Api.Controllers.DTOs
 {
     public record ModificarUsuarioRequest(
-        [Required(ErrorMessage = "O campo {0} é obrigatório.")]
+        [Required(ErrorMessage = "400_GUID_REQUIRED")]
         string Guid,
 
-        [Required(ErrorMessage = "O campo {0} é obrigatório.")]
-        [StringLength(100, MinimumLength = 5, ErrorMessage = "O {0} deve ter no mínimo 5 e no máximo 100 caracteres.")]
+        [Required(ErrorMessage = "400_NAME_REQUIRED")]
+        [StringLength(100, MinimumLength = 5, ErrorMessage = "422_NAME_LENGTH_INVALID")]
         string NomeCompleto,
 
-        [Required(ErrorMessage = "O campo {0} é obrigatório.")]
-        [RegularExpression(@"^\d{11}$", ErrorMessage = "O {0} deve ter exatamente 11 dígitos numéricos.")]
+        [Required(ErrorMessage = "400_CPF_REQUIRED")]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "422_CPF_INVALID_LENGTH")]
         string Cpf,
 
-        [Required(ErrorMessage = "O campo {0} é obrigatório.")]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "A {0} deve ter no mínimo 8 caracteres.")]
+        [Required(ErrorMessage = "400_PASSWORD_REQUIRED")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "422_PASSWORD_TOO_SHORT")]
         [RegularExpression("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\da-zA-Z]).{8,}$",
-        ErrorMessage = "A {0} deve conter: letra maiúscula, minúscula, número e caracter especial.")]
+        ErrorMessage = "422_PASSWORD_COMPLEXITY")]
         string Password
     );
 }

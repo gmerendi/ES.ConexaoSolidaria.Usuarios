@@ -28,7 +28,7 @@ namespace Usuarios.Application.Features.Usuarios
             // 1 - Verificar se o command não é nulo 
             if (command == null)
             {
-                return Result<CriarUsuarioResponse>.Failure("Command inválido.");
+                throw new DomainException("400_COMMAND_INVALID");
             }
 
             try
@@ -38,7 +38,7 @@ namespace Usuarios.Application.Features.Usuarios
 
                 if (usuarioExistente != null)
                 {
-                    return Result<CriarUsuarioResponse>.Failure("Usuário já cadastrado.");
+                    throw new DomainException("422_USER_DUPLICATED");
                 }
 
                 // 2 - Verificar se usuario já existe
@@ -46,7 +46,7 @@ namespace Usuarios.Application.Features.Usuarios
 
                 if (cpfExistente != null)
                 {
-                    return Result<CriarUsuarioResponse>.Failure("CPF já cadastrado.");
+                    throw new DomainException("422_CPF_DUPLICATED");
                 }
 
                 // 3 - Verificar se o solicitante é um usuario logado.

@@ -49,6 +49,18 @@ services:
       - csnetwork
     command: "-jar DynamoDBLocal.jar -sharedDb"
 
+
+  ###########################################################################
+  # REDIS
+  ###########################################################################
+  cs.redis:
+    image: redis:alpine
+    container_name: cs-redis
+    networks:
+      - csnetwork
+    ports:
+      - "6379:6379"
+
   ###########################################################################
   # USUARIOS-API
   ###########################################################################
@@ -63,6 +75,8 @@ services:
     depends_on:
       cs.usuarios.db:
         condition: service_healthy
+      cs.redis:
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080

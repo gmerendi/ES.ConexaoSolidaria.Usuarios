@@ -117,73 +117,88 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EMAIL_INVALID_FORMAT" xml:space="preserve">
+  <data name="422_EMAIL_INVALID_FORMAT" xml:space="preserve">
     <value>Formato de E-mail Invalido</value>
   </data>
-  <data name="EMAIL_REQUIRED" xml:space="preserve">
+  <data name="400_EMAIL_REQUIRED" xml:space="preserve">
     <value>O campo E-mail é obrigatório.</value>
   </data>
-  <data name="PASSWORD_REQUIRED" xml:space="preserve">
+  <data name="400_PASSWORD_REQUIRED" xml:space="preserve">
     <value>O campo password é obrigatório</value>
   </data>
-  <data name="PASSWORD_TOO_SHORT" xml:space="preserve">
+  <data name="422_PASSWORD_TOO_SHORT" xml:space="preserve">
     <value>O campo password deve ter no mínimo 8 caracteres</value>
   </data>
-  <data name="EMAIL_LENGTH_INVALID" xml:space="preserve">
+  <data name="422_EMAIL_LENGTH_INVALID" xml:space="preserve">
     <value>O campo e-mail deve ter no máximo 100 caracteres</value>
   </data>
-  <data name="PASSWORD_REQUIRES_UPPERCASE" xml:space="preserve">
+  <data name="422_PASSWORD_REQUIRES_UPPERCASE" xml:space="preserve">
     <value>O campo password deve ter ao menos uma letra maiuscula</value>
   </data>
-  <data name="PASSWORD_REQUIRES_LOWERCASE" xml:space="preserve">
+  <data name="422_PASSWORD_REQUIRES_LOWERCASE" xml:space="preserve">
     <value>O campo password deve ter ao menos uma letra minuscula</value>
   </data>
-  <data name="PASSWORD_REQUIRES_DIGIT" xml:space="preserve">
+  <data name="422_PASSWORD_REQUIRES_DIGIT" xml:space="preserve">
     <value>O campo password deve ter ao menos um numero</value>
   </data>
-  <data name="PASSWORD_REQUIRES_SPECIAL_CHAR" xml:space="preserve">
+  <data name="422_PASSWORD_REQUIRES_SPECIAL_CHAR" xml:space="preserve">
     <value>O campo password deve ter ao menos um caracter especial</value>
   </data>
-  <data name="CPF_REQUIRED" xml:space="preserve">
+  <data name="400_CPF_REQUIRED" xml:space="preserve">
     <value>O campo CPF é obrigatório.</value>
   </data>
-  <data name="CPF_INVALID_LENGTH" xml:space="preserve">
+  <data name="422_CPF_INVALID_LENGTH" xml:space="preserve">
     <value>O campo CPF deve ter 11 caracteres</value>
   </data>
-  <data name="CPF_INVALID" xml:space="preserve">
+  <data name="422_CPF_INVALID" xml:space="preserve">
     <value>O CPF e invalido.</value>
   </data>
-  <data name="PROFILE_INVALID" xml:space="preserve">
+  <data name="400_PROFILE_INVALID" xml:space="preserve">
     <value>Perfil invalido</value>
   </data>
-  <data name="STATUS_INVALID" xml:space="preserve">
+  <data name="400_STATUS_INVALID" xml:space="preserve">
     <value>Status invalido</value>
   </data>
-  <data name="NAME_REQUIRED" xml:space="preserve">
+  <data name="400_NAME_REQUIRED" xml:space="preserve">
     <value>O campo Nome Completo é obrigatório.</value>
   </data>
-  <data name="NAME_LENGTH_INVALID" xml:space="preserve">
+  <data name="400_NAME_LENGTH_INVALID" xml:space="preserve">
     <value>O campo Nome Completo deve possuir entre 5 e 100 caracteres</value>
   </data>
-  <data name="REQUESTER_REQUIRED" xml:space="preserve">
+  <data name="400_REQUESTER_REQUIRED" xml:space="preserve">
     <value>O campo solicitante não deve ser nulo</value>
   </data>
-  <data name="USER_SUSPENDED" xml:space="preserve">
+  <data name="422_USER_SUSPENDED" xml:space="preserve">
     <value>Não é possível alterar um usuário suspenso.</value>
   </data>
-  <data name="USER_REMOVED" xml:space="preserve">
+  <data name="422_USER_REMOVED" xml:space="preserve">
     <value>Não é possível alterar um usuário deletado.</value>
   </data>
-  <data name="USER_CANNOT_REMOVE" xml:space="preserve">
+  <data name="403_USER_CANNOT_REMOVE" xml:space="preserve">
     <value>Apenas o próprio usuário pode se deletar ou gestores da ONG podem remover outros usuários.</value>
   </data>
-  <data name="USRE_CANNOT_ALTER" xml:space="preserve">
+  <data name="403_USER_CANNOT_ALTER" xml:space="preserve">
     <value>Apenas o próprio usuário ou gestores da ONG podem alterar outros usuários.</value>
   </data>
-  <data name="USER_CANNOT_MODIFY_ACCESS_LEVEL" xml:space="preserve">
+  <data name="403_USER_CANNOT_MODIFY_ACCESS_LEVEL" xml:space="preserve">
     <value>Apenas administradores podem alterar o nível de acesso e status de usuários.</value>
   </data>
-  <data name="USER_CANNOT_MODIFY_OWN_ACCESS_LEVEL" xml:space="preserve">
+  <data name="403_USER_CANNOT_MODIFY_OWN_ACCESS_LEVEL" xml:space="preserve">
     <value>Você não pode alterar seu próprio nível de acesso e status por segurança.</value>
+  </data>
+  <data name="400_COMMAND_INVALID" xml:space="preserve">
+    <value>O Comando não deve ser nulo</value>
+  </data>
+  <data name="422_USER_DUPLICATED" xml:space="preserve">
+    <value>Usuário já cadastrado</value>
+  </data>
+  <data name="422_CPF_DUPLICATED" xml:space="preserve">
+    <value>CPF já existente na lista de usuários</value>
+  </data>
+  <data name="422_PASSWORD_COMPLEXITY" xml:space="preserve">
+    <value>A password deve conter: letra maiúscula, minúscula, número e caracter especial.</value>
+  </data>
+  <data name="400_GUID_REQUIRED" xml:space="preserve">
+    <value>O campo Guid é obrigatório</value>
   </data>
 </root>
