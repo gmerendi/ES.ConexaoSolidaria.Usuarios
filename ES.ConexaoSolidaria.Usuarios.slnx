@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Usuarios.Api/Usuarios.Api.csproj" />
+    <Project Path="src/Usuarios.Application/Usuarios.Application.csproj" />
+    <Project Path="src/Usuarios.Domain/Usuarios.Domain.csproj" />
+    <Project Path="src/Usuarios.Infrastructure/Usuarios.Infrastructure.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>

@@ -1,0 +1,84 @@
+networks:
+  csnetwork: {}
+
+volumes:
+  usuarios_data: {}
+
+
+
+
+
+services:
+  ###########################################################################
+  # RABBITMQ
+  ###########################################################################
+
+  ###########################################################################
+  # USUARIOS-DB
+  ###########################################################################
+  cs.usuarios.db:
+    image: postgres:15-alpine
+    container_name: cs-usuarios-db
+    environment:
+      POSTGRES_USER: fiap
+      POSTGRES_PASSWORD: fiap123
+      POSTGRES_DB: cs-usuarios
+    networks: 
+      - csnetwork
+    ports:
+      - "5433:5432"
+    volumes:
+
+      - usuarios_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fiap", "-d", "cs-usuarios"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ###########################################################################
+  # DYNAMODB
+  ###########################################################################
+  cs.dynamo.db:
+    image: amazon/dynamodb-local
+    container_name: cs-dynamo-db
+    ports:
+      - "8000:8000"
+    networks:
+      - csnetwork
+    command: "-jar DynamoDBLocal.jar -sharedDb"
+
+  ###########################################################################
+  # USUARIOS-API
+  ###########################################################################
+  cs.usuarios.api:
+    image: ${DOCKER_REGISTRY-}cs-usuarios-app:v1
+    build:
+      context: .
+      dockerfile: src/Usuarios.Api/Dockerfile
+    container_name: cs-usuarios-api
+    ports:
+      - 5001:8080
+    depends_on:
+      cs.usuarios.db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Database: "Host=cs-usuarios-db;Port=5432;Database=cs-usuarios;Username=fiap;Password=fiap123"
+      ConnectionStrings__ConnectionStringAuditLog: "http://cs-dynamo-db:8000"
+      ConnectionStrings__ConnectionStringRedis: "fcg-redis:6379"
+      RabbitMq__Host: "cs-rabbitmq"
+      RabbitMq__Username: "fiap"
+      RabbitMq__Password: "fiap123"
+      Jwt__Key: "ChaveSuperSecretaComMaisDe32CaracteresAqui12345"
+      Jwt__Issuer: "ES-ConexaoSolidariaIssuer"
+      Jwt__Audience: "ES-ConexaoSolidariaClient"
+      CustomLogging__LogInfo: "True"
+      CustomLogging__LogError: "True"
+      CustomLogging__LogWarning: "True"
+      Application__Type: "LOCAL"
+    networks: 
+      - csnetwork
+    restart: on-failure
