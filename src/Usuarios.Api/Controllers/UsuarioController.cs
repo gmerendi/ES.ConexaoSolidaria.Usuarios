@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Usuarios.Api.Controllers.DTOs;
 using Usuarios.Application.Features.Usuarios;
-using Usuarios.Application.Interfaces;
 using Usuarios.Application.Shared;
+using Usuarios.Domain.Enums;
+using Usuarios.Domain.Shared.Interfaces;
 using Usuarios.Domain.Shared.Primitives;
 
 namespace Users.API.Controllers;
@@ -34,19 +35,19 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando criação de usuario: " + request.Email, request.NomeCompleto);
+        _logger.LogInformation("Iniciando criação de usuario: " + request.Email, BaseLogType.LOG, request.Email);
         var command = new CriarUsuarioCommand(request.NomeCompleto, request.Email, request.Cpf, request.Password);
         
         var result = await _criarUsuarioHandler.HandleAsync(command, ct);
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, result);
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario criado com sucesso: " + result.Value.Email, result.Value);
-        return Created(string.Empty, result.Value);
+        _logger.LogInformation("Usuario criado com sucesso: " + result.Value.Email, BaseLogType.LOG, result.Value.Email);
+        return Created("Usuario criado com sucesso", result);
     }
 
 

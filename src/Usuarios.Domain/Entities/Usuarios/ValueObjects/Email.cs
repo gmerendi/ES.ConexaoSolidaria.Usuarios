@@ -22,14 +22,14 @@ namespace Usuarios.Domain.Entities.Usuarios
         // -----------------------------------------------------------------------------
         public static Email Create(string endereco)
         {
-            AssertionConcern.AssertArgumentNotEmpty(endereco, "EMAIL_REQUIRED");
+            AssertionConcern.AssertArgumentNotEmpty(endereco, "400_EMAIL_REQUIRED");
 
-            AssertionConcern.AssertArgumentLength(endereco, 0, 100, "EMAIL_LENGTH_INVALID");
+            AssertionConcern.AssertArgumentLength(endereco, 0, 100, "422_EMAIL_LENGTH_INVALID");
 
             // Validação do formato
             if (!IsValidEmailFormat(endereco))
             {
-                throw new DomainException("EMAIL_INVALID_FORMAT");
+                throw new DomainException("422_EMAIL_INVALID_FORMAT");
             }
 
             // Se for válido, retorna Sucesso com a nova instância

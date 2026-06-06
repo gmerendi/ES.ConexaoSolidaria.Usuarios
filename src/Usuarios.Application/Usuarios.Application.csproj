@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Auth\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Features\Shared\ICommandHandler.cs" />
   </ItemGroup>
 

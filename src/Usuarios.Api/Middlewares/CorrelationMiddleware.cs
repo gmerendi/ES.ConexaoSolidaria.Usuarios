@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Primitives;
-using Usuarios.Application.Interfaces;
+using Usuarios.Domain.Shared.Interfaces;
 
 namespace Usuarios.Api.Middlewares
 {

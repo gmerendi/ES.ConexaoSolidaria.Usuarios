@@ -17,24 +17,24 @@ public sealed class Password
     // -----------------------------------------------------------------------------
     public static Result<Password> CreatePasswordHash(string password)
     {
-        AssertionConcern.AssertArgumentNotEmpty(password, "PASSWORD_REQUIRED");
+        AssertionConcern.AssertArgumentNotEmpty(password, "400_PASSWORD_REQUIRED");
 
         var errors = new List<string>();
 
         if (password.Length < 8)
-            errors.Add("PASSWORD_TOO_SHORT");
+            errors.Add("422_PASSWORD_TOO_SHORT");
 
         if (!password.Any(char.IsUpper))
-            errors.Add("PASSWORD_REQUIRES_UPPERCASE");
+            errors.Add("422_PASSWORD_REQUIRES_UPPERCASE");
 
         if (!password.Any(char.IsLower))
-            errors.Add("PASSWORD_REQUIRES_LOWERCASE");
+            errors.Add("422_PASSWORD_REQUIRES_LOWERCASE");
 
         if (!password.Any(char.IsDigit))
-            errors.Add("PASSWORD_REQUIRES_DIGIT");
+            errors.Add("422_PASSWORD_REQUIRES_DIGIT");
 
         if (!password.Any(c => !char.IsLetterOrDigit(c)))
-            errors.Add("PASSWORD_REQUIRES_SPECIAL_CHAR");
+            errors.Add("422_PASSWORD_REQUIRES_SPECIAL_CHAR");
 
         if (errors.Count > 0)
             return Result<Password>.Failure(string.Join(" ", errors));

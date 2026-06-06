@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Usuarios.Infrastructure.Services.AuditLog;
@@ -8,12 +9,12 @@ namespace Usuarios.Infrastructure.Extensions
 {
     public static class AuditLogExtensions
     {
-        public static IServiceCollection AddAuditLog(this IServiceCollection services, ILogger logger)
+        public static IServiceCollection AddAuditLog(this IServiceCollection services, IConfiguration configuration, ILogger logger)
         {
             
 
             // Audit Logs
-            var dynamoDbConn = Environment.GetEnvironmentVariable("ConnectionStrings__ConnectionStringAuditLog");
+            var dynamoDbConn = Environment.GetEnvironmentVariable("ConnectionStrings__AuditLog");
             var applicationType = Environment.GetEnvironmentVariable("Application__Type");
             if (applicationType == "LOCAL")
             {

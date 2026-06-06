@@ -1,4 +1,4 @@
-﻿using Usuarios.Application.Interfaces;
+﻿using Usuarios.Domain.Shared.Interfaces;
 
 namespace Usuarios.Infrastructure.Services.Logging
 {

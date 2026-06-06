@@ -24,7 +24,7 @@ namespace Usuarios.Domain.Entities.Usuarios
         // -----------------------------------------------------------------------------
         public static Cpf Create(string cpfRaw)
         {
-            AssertionConcern.AssertArgumentNotEmpty(cpfRaw, "CPF_REQUIRED");
+            AssertionConcern.AssertArgumentNotEmpty(cpfRaw, "400_CPF_REQUIRED");
            
 
             // Remove pontos, traços ou espaços que o usuário possa ter digitado no front
@@ -32,12 +32,12 @@ namespace Usuarios.Domain.Entities.Usuarios
             string cpfLimpo = new string(cpfRaw.Where(char.IsDigit).ToArray());
 
             // Um CPF PRECISA ter exatamente 11 caracteres numéricos
-            AssertionConcern.AssertArgumentLength(cpfLimpo, 11, 11, "CPF_INVALID_LENGTH");
+            AssertionConcern.AssertArgumentLength(cpfLimpo, 11, 11, "422_CPF_INVALID_LENGTH");
 
             // Faz a validação matemática dos dígitos verificadores
             if (!ValidateCpfStructure(cpfLimpo))
             {
-                throw new DomainException("CPF_INVALID");
+                throw new DomainException("422_CPF_INVALID");
             }
 
             return new Cpf(cpfLimpo);

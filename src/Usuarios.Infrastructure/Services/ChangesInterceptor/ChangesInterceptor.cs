@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
-using Usuarios.Application.Interfaces;
+using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Entity;
 using Usuarios.Domain.Shared.Interfaces;
 using Usuarios.Infrastructure.Services.AuditLog;
@@ -12,7 +12,6 @@ public class AuditInterceptor : SaveChangesInterceptor
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IBaseLogger<AuditInterceptor> _logger;
-    // Usamos AsyncLocal para manter o estado das entradas capturadas entre o Saving e o Saved
     private static readonly AsyncLocal<List<AuditLog>> _auditEntries = new();
 
     public AuditInterceptor(IServiceProvider serviceProvider, IBaseLogger<AuditInterceptor> logger)
@@ -24,21 +23,21 @@ public class AuditInterceptor : SaveChangesInterceptor
     // 1. CAPTURA: Antes de salvar (ainda temos acesso aos valores originais)
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
-        _logger.LogInformation("SavingChanges disparado - Capturando dados de auditoria", eventData);
+        _logger.LogInformation("SavingChanges disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
         CaptureChanges(eventData.Context);
         return result;
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("SavingChangesAsync disparado - Capturando dados de auditoria", eventData);
+        _logger.LogInformation("SavingChangesAsync disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
         CaptureChanges(eventData.Context);
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
     private void CaptureChanges(DbContext? context)
     {
-        _logger.LogInformation("CaptureChanges disparado - Capturando dados de auditoria", context);
+        _logger.LogInformation("CaptureChanges disparado - Capturando dados de auditoria", BaseLogType.LOG, context);
         if (context == null) return;
 
         var entries = context.ChangeTracker.Entries()
@@ -85,27 +84,27 @@ public class AuditInterceptor : SaveChangesInterceptor
         }
         var count = list.Count;
         _auditEntries.Value = list;
-        _logger.LogInformation("AuditEntries para ser gravadas: " + count.ToString(), list);
+        _logger.LogInformation("AuditEntries para ser gravadas: " + count.ToString(), BaseLogType.LOG, list);
     }
 
     // 2. PERSISTÊNCIA: Após o sucesso no banco relacional
     public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("SavedChangesAsync disparado - Capturando dados de auditoria", eventData);
+        _logger.LogInformation("SavedChangesAsync disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
         await PersistAuditAsync();
         return result;
     }
 
     public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
     {
-        _logger.LogInformation("SavedChanges disparado - Capturando dados de auditoria", eventData);
+        _logger.LogInformation("SavedChanges disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
         PersistAuditAsync().GetAwaiter().GetResult();
         return base.SavedChanges(eventData, result);
     }
 
     private async Task PersistAuditAsync()
     {
-        _logger.LogInformation("PersistAuditAsync disparado - Capturando dados de auditoria", null);
+        _logger.LogInformation("PersistAuditAsync disparado - Capturando dados de auditoria", BaseLogType.LOG, null);
         var entries = _auditEntries.Value;
         if (entries == null || !entries.Any()) return;
 
@@ -126,11 +125,11 @@ public class AuditInterceptor : SaveChangesInterceptor
                 entry.IpAddress = ip;
 
 
-                _logger.LogInformation("Chamando serviço de audit log", entry);
+                _logger.LogInformation("Chamando serviço de audit log", BaseLogType.LOG, entry);
                 await auditRepository.SaveRawLogAsync(entry);
             }
             catch (Exception ex) {
-                _logger.LogInformation("Falha ao chamar serviço audit log" + ex.Message, entry);
+                _logger.LogInformation("Falha ao chamar serviço audit log" + ex.Message, BaseLogType.LOG, entry);
             }
         }
 

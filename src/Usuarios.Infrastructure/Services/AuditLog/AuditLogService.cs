@@ -1,7 +1,9 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using Usuarios.Application.Interfaces;
+using Usuarios.Domain.Enums;
+using Usuarios.Domain.Shared.Interfaces;
 
 namespace Usuarios.Infrastructure.Services.AuditLog
 {
@@ -18,7 +20,7 @@ namespace Usuarios.Infrastructure.Services.AuditLog
         {
             try
             {
-                _logger.LogInformation($"Preparando audit log para entidade {entityType} com Guid {entityId} - Operação: {operation} feito por: {user}", data);
+                _logger.LogInformation($"Preparando audit log para entidade " + entityType + " com Guid " + entityId + " - Operação: " + operation + " feito por: " + user, BaseLogType.LOG, data);
                 var entry = new AuditLog
                 {
                     PK = $"ENTITY#{entityType.ToUpper()}#{entityId}",
@@ -31,14 +33,14 @@ namespace Usuarios.Infrastructure.Services.AuditLog
                     // Define expiração para 1 ano (exemplo)
                     ExpirationTime = DateTimeOffset.UtcNow.AddYears(1).ToUnixTimeSeconds()
                 };
-                _logger.LogInformation($"Salvando audit log para entidade {entityType} com Guid {entityId} - Operação: {operation} feito por: {user}", entry);
+                _logger.LogInformation($"Salvando audit log para entidade " + entityType + " com Guid " + entityId + " - Operação: " + operation + " feito por: " + user, BaseLogType.LOG, entry);
 
                 await _context.SaveAsync(entry);
 
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Erro preparando audit log para entidade {entityType} com Guid {entityId}: {ex.Message}", ex);
+                _logger.LogError($"Erro preparando audit log para entidade " + entityType + " com Guid " + entityId + ": " + ex.Message, BaseLogType.LOG, ex);
                 throw;
             }
         }
@@ -47,12 +49,12 @@ namespace Usuarios.Infrastructure.Services.AuditLog
         {
             try
             {
-                _logger.LogInformation($"Salvando raw audit log para o ResourceId: {log.ResourceId} - Operação: {log.Operation} feito por: {log.ChangedBy}", log);
+                _logger.LogInformation($"Salvando raw audit log para o ResourceId: " + log.ResourceId + " - Operação: " + log.Operation + " feito por: " + log.ChangedBy, BaseLogType.LOG, log);
                 await _context.SaveAsync(log);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Erro preparando raw audit log para o ResourceId: {log.ResourceId}: {ex.Message}", ex);
+                _logger.LogError($"Erro preparando raw audit log para o ResourceId: {log.ResourceId}: {ex.Message}", BaseLogType.LOG, ex);
                 throw;
             }
         }

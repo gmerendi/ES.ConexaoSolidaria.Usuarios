@@ -1,4 +1,4 @@
-﻿namespace Usuarios.Application.Interfaces
+﻿namespace Usuarios.Domain.Shared.Interfaces
 {
     public interface ICorrelationIdGenerator
     {

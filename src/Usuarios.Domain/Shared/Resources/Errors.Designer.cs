@@ -151,6 +151,24 @@ namespace Usuarios.Domain.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Senha inválida.
+        /// </summary>
+        public static string _401_INVALID_CREDENTIALS {
+            get {
+                return ResourceManager.GetString("401_INVALID_CREDENTIALS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não existe usuario cadastrado com o e-mail informado..
+        /// </summary>
+        public static string _401_USER_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("401_USER_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Apenas o próprio usuário ou gestores da ONG podem alterar outros usuários..
         /// </summary>
         public static string _403_USER_CANNOT_ALTER {
@@ -183,6 +201,24 @@ namespace Usuarios.Domain.Shared.Resources {
         public static string _403_USER_CANNOT_REMOVE {
             get {
                 return ResourceManager.GetString("403_USER_CANNOT_REMOVE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usuario marcado para exclusão de dados (LGPD). Caso deseje informações adicionais entrar em contato com suporte@conexao-solidaria.com.br.
+        /// </summary>
+        public static string _403_USER_DELETED {
+            get {
+                return ResourceManager.GetString("403_USER_DELETED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usuario suspenso. Favor entrar em contato com o e-mail  suporte@conexao-solidaria.com.br.
+        /// </summary>
+        public static string _403_USER_SUSPENDED {
+            get {
+                return ResourceManager.GetString("403_USER_SUSPENDED", resourceCulture);
             }
         }
         

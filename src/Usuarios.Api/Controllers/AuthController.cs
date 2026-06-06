@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Usuarios.Api.Controllers.DTOs;
-using Usuarios.Application.Interfaces;
+using Usuarios.Application.Features.Auth;
+using Usuarios.Application.Features.Usuarios;
+using Usuarios.Application.Shared;
+using Usuarios.Domain.Enums;
+using Usuarios.Domain.Shared.Interfaces;
+using Usuarios.Domain.Shared.Primitives;
 
 namespace Users.API.Controllers;
 
@@ -10,14 +15,38 @@ namespace Users.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IBaseLogger<AuthController> _logger;
+    private readonly IUseCaseHandler<LogarUsuarioCommand, Result<LogarUsuarioResponse>> _logarUsuarioHandler;
 
-    public AuthController(IBaseLogger<AuthController> logger)
+    public AuthController(IBaseLogger<AuthController> logger, IUseCaseHandler<LogarUsuarioCommand, Result<LogarUsuarioResponse>> logarUsuarioHandler)
     {
         _logger = logger;
+        _logarUsuarioHandler = logarUsuarioHandler;
     }
 
 
-    /// <summary>UC-02 - Cadastrar novo doador</summary>
+    /// <summary>UC-02 - Realizar Login</summary>
+    /// <summary>Cadastrar novo doador</summary>
+    [HttpPost]
+    [ProducesResponseType(typeof(CriarUsuarioResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Login([FromBody] LogarUsuarioRequest request, CancellationToken ct)
+    {
+        _logger.LogInformation("Iniciando login de usuario: " + request.Email, BaseLogType.LOG, request.Email);
+        var command = new LogarUsuarioCommand(request.Email, request.Password);
+
+        var result = await _logarUsuarioHandler.HandleAsync(command, ct);
+
+        if (!result.IsSuccess)
+        {
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            return BadRequest(result.Error);
+        }
+
+        _logger.LogInformation("Usuario logado com sucesso: " + request.Email, BaseLogType.LOG, result.Value.Email);
+        return Created(string.Empty, result.Value);
+    }
 
 
     /*

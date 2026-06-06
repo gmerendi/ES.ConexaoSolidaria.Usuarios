@@ -201,4 +201,16 @@
   <data name="400_GUID_REQUIRED" xml:space="preserve">
     <value>O campo Guid é obrigatório</value>
   </data>
+  <data name="401_USER_NOT_FOUND" xml:space="preserve">
+    <value>Não existe usuario cadastrado com o e-mail informado.</value>
+  </data>
+  <data name="401_INVALID_CREDENTIALS" xml:space="preserve">
+    <value>Senha inválida</value>
+  </data>
+  <data name="403_USER_SUSPENDED" xml:space="preserve">
+    <value>Usuario suspenso. Favor entrar em contato com o e-mail  suporte@conexao-solidaria.com.br</value>
+  </data>
+  <data name="403_USER_DELETED" xml:space="preserve">
+    <value>Usuario marcado para exclusão de dados (LGPD). Caso deseje informações adicionais entrar em contato com suporte@conexao-solidaria.com.br</value>
+  </data>
 </root>

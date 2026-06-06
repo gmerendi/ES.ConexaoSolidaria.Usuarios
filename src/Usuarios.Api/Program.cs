@@ -66,7 +66,9 @@ logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Infrastructu
 builder.Services.AddDbContext(builder.Configuration, logger);
 builder.Services.AddCustomLogging(logger);
 builder.Services.AddRepositories(logger);
-builder.Services.AddAuditLog(logger);
+builder.Services.AddAuditLog(builder.Configuration, logger);
+builder.Services.AddMessaging(builder.Configuration, logger);
+builder.Services.AddAuthenticationServices(builder.Configuration,logger);
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Infrastructure Extensions ", logCounter, logTotal);
 
 
@@ -86,6 +88,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
 
 app.MapControllers();
 

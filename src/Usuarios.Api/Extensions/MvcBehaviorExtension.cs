@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Usuarios.Application.Interfaces;
+using Usuarios.Domain.Shared.Interfaces;
 using Usuarios.Domain.Shared.Resources;
 
 namespace Usuarios.Api.Extensions;
@@ -12,7 +12,7 @@ public static class MvcBehaviorExtensions
         {
             options.InvalidModelStateResponseFactory = context =>
             {
-                // 1. Recupera o seu gerador de CorrelationId a partir do escopo do request
+                // 1. Recupera o gerador de CorrelationId a partir do escopo do request
                 var correlationIdGenerator = context.HttpContext.RequestServices
                     .GetRequiredService<ICorrelationIdGenerator>();
 

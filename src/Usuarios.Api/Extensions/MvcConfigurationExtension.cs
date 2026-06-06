@@ -22,7 +22,7 @@ public static class MvcConfigurationExtensions
 
                 var resposta = new
                 {
-                    title = "Um ou mais erros ocorreram.",
+                    title = "One or more validation errors occurred.",
                     status = 400,
                     errors = errosTraduzidos,
                     traceId = context.HttpContext.TraceIdentifier

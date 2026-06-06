@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Usuarios.Application.Features.Auth;
 using Usuarios.Application.Features.Usuarios;
 using Usuarios.Application.Shared;
 using Usuarios.Domain.Shared.Primitives;
@@ -13,7 +14,9 @@ namespace Usuarios.Application.Extensions
             // ApplicationServices
             
 
-            services.AddScoped <IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>>, CriarUsuarioCommandHandler > ();
+            services.AddScoped <IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>>, CriarUsuarioCommandHandler >();
+            services.AddScoped <IUseCaseHandler<LogarUsuarioCommand, Result<LogarUsuarioResponse>>, LogarUsuarioCommandHandler>();
+
             logger.LogInformation(" ***** UseCase services inicializados.");
 
             return services;
