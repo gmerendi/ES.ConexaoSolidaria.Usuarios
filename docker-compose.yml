@@ -1,0 +1,140 @@
+networks:
+  csnetwork: {}
+
+volumes:
+  usuarios_data: {}
+  rabbitmq_data: {}
+  rabbitmq_logs: {}
+
+
+
+
+
+services:
+  ###########################################################################
+  # RABBITMQ
+  ###########################################################################
+  cs.rabbitmq:
+    image: rabbitmq:4.1.6-management-alpine
+    container_name: cs-rabbitmq
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: fiap
+      RABBITMQ_DEFAULT_PASS: fiap123
+      RABBITMQ_DEFAULT_VHOST: /
+    networks: 
+      - csnetwork
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_logs:/var/log/rabbitmq
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+
+  ###########################################################################
+  # USUARIOS-DB
+  ###########################################################################
+  cs.usuarios.db:
+    image: postgres:15-alpine
+    container_name: cs-usuarios-db
+    environment:
+      POSTGRES_USER: fiap
+      POSTGRES_PASSWORD: fiap123
+      POSTGRES_DB: cs-usuarios
+    networks: 
+      - csnetwork
+    ports:
+      - "5433:5432"
+    volumes:
+
+      - usuarios_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fiap", "-d", "cs-usuarios"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ###########################################################################
+  # DYNAMODB
+  ###########################################################################
+  cs.dynamo.db:
+    image: amazon/dynamodb-local
+    container_name: cs-dynamo-db
+    ports:
+      - "8000:8000"
+    networks:
+      - csnetwork
+    command: "-jar DynamoDBLocal.jar -sharedDb"
+
+
+  ###########################################################################
+  # REDIS
+  ###########################################################################
+  cs.redis:
+    image: redis:alpine
+    container_name: cs-redis
+    networks:
+      - csnetwork
+    ports:
+      - "6379:6379"
+
+  ###########################################################################
+  # USUARIOS-API
+  ###########################################################################
+  cs.usuarios.api:
+    image: ${DOCKER_REGISTRY-}cs-usuarios-app:v1
+    build:
+      context: .
+      dockerfile: src/Usuarios.Api/Dockerfile
+    container_name: cs-usuarios-api
+    ports:
+      - 5001:8080
+    depends_on:
+      cs.usuarios.db:
+        condition: service_healthy
+      cs.redis:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      #ConnectionStrings
+      ConnectionStrings__Database: "Host=cs-usuarios-db;Port=5432;Database=cs-usuarios;Username=fiap;Password=fiap123"
+      ConnectionStrings__ConnectionString: "Host=cs-usuarios-db;Port=5432;Database=cs-usuarios;Username=fiap;Password=fiap123"
+      ConnectionStrings__AuditLog: "http://cs-dynamo-db:8000"
+      ConnectionStrings__Redis: "cs-redis:6379"
+
+      #RabbitMq
+      RabbitMq__Host: "cs-rabbitmq"
+      RabbitMq__Username: "fiap"
+      RabbitMq__Password: "fiap123"
+
+      #Queues
+      USER_CREATED_QUEUE: "user-created-queue"
+
+      #JWT
+      Jwt__SecretKey: "ChaveSuperSecretaComMaisDe32CaracteresAqui12345"
+      Jwt__Issuer: "ES-ConexaoSolidariaIssuer"
+      Jwt__Audience: "ES-ConexaoSolidariaClient"
+      Jwt__ExpirationHours: "3"
+
+      #Logs
+      CustomLogging__LogInfo: "True"
+      CustomLogging__LogError: "True"
+      CustomLogging__LogWarning: "True"
+      CustomLogging__SendLogToDB: "True"
+
+      #Configuration
+      Application__Type: "LOCAL"
+      Admin__Email: "admin@conexao-solidaria.com.br"
+      Admin__Password: "12345678Aa#"
+    networks: 
+      - csnetwork
+    restart: on-failure
