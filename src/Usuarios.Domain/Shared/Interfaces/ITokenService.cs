@@ -5,4 +5,6 @@ namespace Usuarios.Domain.Shared.Interfaces;
 public interface ITokenService
 {
     (string Token, DateTime DataExpiracao) GetToken(Usuario usuario);
+
+    TimeSpan GetTokenTimeToExpire(string token);
 }   

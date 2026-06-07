@@ -1,0 +1,82 @@
+﻿using CS.Domain.Events;
+using Usuarios.Application.Shared;
+using Usuarios.Domain.Entities.Usuarios;
+using Usuarios.Domain.Entity.Usuarios;
+using Usuarios.Domain.Enums;
+using Usuarios.Domain.Shared.Exceptions;
+using Usuarios.Domain.Shared.Interfaces;
+using Usuarios.Domain.Shared.Primitives;
+
+namespace Usuarios.Application.Features.Usuarios
+{
+    public class AtivarUsuarioCommandHandler : IUseCaseHandler<AtivarUsuarioCommand, Result<bool>>
+    {
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IUserContext _userContext;
+        private readonly IBaseLogger<ObterUsuarioCommandHandler> _logger;
+        private readonly ICacheService _cacheService;
+        private readonly IMessageService _messageService;
+        private readonly IUsuarioDomainService _usuarioDomainService;
+
+        public AtivarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
+            IBaseLogger<ObterUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
+            IUsuarioDomainService usuarioDomainService)
+        {
+            _usuarioRepository = usuarioRepository;
+            _userContext = userContext;
+            _logger = logger;
+            _cacheService = cacheService;
+            _messageService = messageService;
+            _usuarioDomainService = usuarioDomainService;
+        }
+
+        public async Task<Result<bool>> HandleAsync(AtivarUsuarioCommand command, CancellationToken ct)
+        {
+            // 1 - Verificar se o command não é nulo 
+            if (command == null)
+            {
+                throw new DomainException("400_COMMAND_INVALID");
+            }
+
+            try
+            {
+                _logger.LogInformation("Tentativa de ativação de usuario iniciada para o email: " + command.Email, BaseLogType.LOG, command);
+
+                //2 - Buscar solicitante. Somente GESTOR_ONG pode ativar um usuario.
+                // Porem um GESTOR_ONG não pode ativar o seu proprio perfil.               
+                var solicitante = _userContext.GetUser() ?? null;
+                var usuarioSolicitante = await _usuarioRepository.ObterPorEmailAsync(solicitante.Email);
+                var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Email);
+
+                if (usuario == null)
+                {
+                    throw new DomainException("400_USER_NOT_FOUND");
+                }
+
+                if (solicitante == null) 
+                {
+                    throw new DomainException("400_REQUESTER_REQUIRED");
+                }
+
+                _usuarioDomainService.PodeAlterarPerfilEStatus(usuarioSolicitante, usuario);         
+
+                // 3 - Modifica o status do usuario para ACTIVE
+                usuario.Ativar(solicitante.Email);
+                await _usuarioRepository.AlterarAsync(usuario);
+
+                // 5 - Envia evento de ativação de usuário
+                await _messageService.SendUserActivatedEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
+
+                return Result<bool>.Success(true);
+            }
+            catch (DomainException)
+            {
+                throw; 
+            }
+            catch (Exception ex) {  
+                _logger.LogError("Erro ao ativar usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+                throw new ApplicationException("Ocorreu um erro ao ativar  o usuário. " + ex.Message);
+            }
+        }   
+    }
+}

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Usuarios.Api.Controllers.DTOs
+namespace Usuarios.Application.Features.Usuarios
 {
-    public record ModificarUsuarioRequest(
+    public record ModificarUsuarioCommand(
         [Required(ErrorMessage = "400_NAME_REQUIRED")]
         [StringLength(100, MinimumLength = 5, ErrorMessage = "422_NAME_LENGTH_INVALID")]
         string NomeCompleto,

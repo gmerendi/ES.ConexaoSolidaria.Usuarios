@@ -201,7 +201,7 @@
   <data name="400_GUID_REQUIRED" xml:space="preserve">
     <value>O campo Guid é obrigatório</value>
   </data>
-  <data name="401_USER_NOT_FOUND" xml:space="preserve">
+  <data name="400_USER_NOT_FOUND" xml:space="preserve">
     <value>Não existe usuario cadastrado com o e-mail informado.</value>
   </data>
   <data name="401_INVALID_CREDENTIALS" xml:space="preserve">
@@ -212,5 +212,23 @@
   </data>
   <data name="403_USER_DELETED" xml:space="preserve">
     <value>Usuario marcado para exclusão de dados (LGPD). Caso deseje informações adicionais entrar em contato com suporte@conexao-solidaria.com.br</value>
+  </data>
+  <data name="400_STATUS_REQUIRED" xml:space="preserve">
+    <value>Status é obrigatório</value>
+  </data>
+  <data name="401_TOKEN_REVOKED" xml:space="preserve">
+    <value>Token revogado (Usuário efetuou logout ou foi bloqueado).</value>
+  </data>
+  <data name="400_TOKEN_REQUIRED" xml:space="preserve">
+    <value>O Token JWT é requerido</value>
+  </data>
+  <data name="403_USER_NOT_ALLOWED" xml:space="preserve">
+    <value>Acesso não permitido</value>
+  </data>
+  <data name="403_PASSWORD_INCORRECT" xml:space="preserve">
+    <value>Password incorreto</value>
+  </data>
+  <data name="403_FORBIDDEN_CANNOT_SUSPEND_SELF" xml:space="preserve">
+    <value>Um gestor não pode suspender o próprio perfil.</value>
   </data>
 </root>

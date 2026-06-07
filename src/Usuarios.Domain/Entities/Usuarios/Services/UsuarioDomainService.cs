@@ -13,7 +13,7 @@ public class UsuarioDomainService : IUsuarioDomainService
             return;
         }
 
-        throw new DomainException("USER_CANNOT_REMOVE");
+        throw new DomainException("403_USER_CANNOT_REMOVE");
     }
 
     public void PodeAlterarUsuario(Usuario solicitante, Usuario usuarioAlvo)
@@ -30,15 +30,15 @@ public class UsuarioDomainService : IUsuarioDomainService
             switch (usuarioAlvo.Status)
             {
                 case EntityStatus.SUSPENDED:
-                    throw new DomainException("USER_SUSPENDED");
+                    throw new DomainException("403_USER_SUSPENDED");
                 case EntityStatus.REMOVED:
-                    throw new DomainException("USER_REMOVED");
+                    throw new DomainException("403_USER_REMOVED");
                 default:
                     return; // Status válido (ATIVO, etc), pode continuar
             }
         }
 
-        throw new DomainException("USER_CANNOT_ALTER");
+        throw new DomainException("403_USER_CANNOT_ALTER");
     }
 
     public void PodeAlterarPerfilEStatus(Usuario solicitante, Usuario usuarioAlvo)
@@ -46,13 +46,13 @@ public class UsuarioDomainService : IUsuarioDomainService
         // Regra 1: Apenas administradores/gestores podem alterar perfil ou status
         if (solicitante.Perfil != Perfil.GESTOR_ONG)
         {
-            throw new DomainException("USER_CANNOT_MODIFY_ACCESS_LEVEL");
+            throw new DomainException("403_USER_CANNOT_MODIFY_ACCESS_LEVEL");
         }
 
         // Regra 2: Admin não pode alterar seu próprio perfil (Segurança) ou status
         if (solicitante.Guid == usuarioAlvo.Guid)
         {
-            throw new DomainException("USER_CANNOT_MODIFY_OWN_ACCESS_LEVEL");
+            throw new DomainException("403_USER_CANNOT_MODIFY_OWN_ACCESS_LEVEL");
         }
 
         return;

@@ -99,17 +99,6 @@ namespace Usuarios.Domain.Entities.Usuarios
             ModificadoPor = modificadoPor;
         }
 
-        public void Remover(string modificadoPor)
-        {
-            SolicitanteAssertions(modificadoPor);
-
-            // O usuario não é removido. Ele é marcado como REMOVED
-            // para manter o histórico de acordo com a política de dados.
-            // O worker removerá os dados pessoais após o período de retenção definido.
-            Status = EntityStatus.REMOVED;
-            ModificadoPor = modificadoPor;
-        }
-
 
         // -----------------------------------------------------------------------------
         // Validações

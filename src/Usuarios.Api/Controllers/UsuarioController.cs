@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Usuarios.Api.Controllers.DTOs;
 using Usuarios.Application.Features.Usuarios;
 using Usuarios.Application.Shared;
+using Usuarios.Domain.Entities.Usuarios.DTO;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Interfaces;
 using Usuarios.Domain.Shared.Primitives;
@@ -14,20 +16,76 @@ namespace Users.API.Controllers;
 public class UsuarioController : ControllerBase
 {
     private readonly IBaseLogger<UsuarioController> _logger;
-    private readonly IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>> _criarUsuarioHandler;
+    private readonly IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>> _criarUsuarioCommandHandler;
+    private readonly IUseCaseHandler<ObterUsuarioCommand, Result<ObterUsuarioResponse>> _obterUsuarioCommandHandler;
+    private readonly IUseCaseHandler<RemoverUsuarioCommand, Result<bool>> _removerUsuarioCommandHandler;
+    private readonly IUseCaseHandler<SuspenderUsuarioCommand, Result<bool>> _suspenderUsuarioCommandHandler;
+    private readonly IUseCaseHandler<AtivarUsuarioCommand, Result<bool>> _ativarUsuarioCommandHandler;
+    private readonly IUseCaseHandler<ModificarUsuarioCommand, Result<ModificarUsuarioResponse>> _modificarUsuarioCommandHandler;
+    private readonly IUseCaseHandler<AlterarPerfilParaGestorCommand, Result<bool>> _alterarPerfilParaGestorCommandHandler;
+    private readonly IUseCaseHandler<AlterarPerfilParaDoadorCommand, Result<bool>> _alterarPerfilParaDoadorCommandHandler;
 
     public UsuarioController(IBaseLogger<UsuarioController> logger,
-        IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>> criarUsuarioHandler)
+        IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>> criarUsuarioCommandHandler,
+        IUseCaseHandler<ObterUsuarioCommand, Result<ObterUsuarioResponse>> obterUsuarioCommandHandler,
+        IUseCaseHandler<RemoverUsuarioCommand, Result<bool>> removerUsuarioCommandHandler,
+        IUseCaseHandler<SuspenderUsuarioCommand, Result<bool>> suspenderUsuarioCommandHandler,
+        IUseCaseHandler<AtivarUsuarioCommand, Result<bool>> ativarUsuarioCommandHandler,
+        IUseCaseHandler<ModificarUsuarioCommand, Result<ModificarUsuarioResponse>> modificarUsuarioCommandHandler,
+        IUseCaseHandler<AlterarPerfilParaGestorCommand, Result<bool>> alterarPerfilParaGestorCommandHandler,
+        IUseCaseHandler<AlterarPerfilParaDoadorCommand, Result<bool>> alterarPerfilParaDoadorCommandHandler)
     {
         _logger = logger;
-        _criarUsuarioHandler = criarUsuarioHandler;
-    }   
+        _criarUsuarioCommandHandler = criarUsuarioCommandHandler;
+        _obterUsuarioCommandHandler = obterUsuarioCommandHandler;
+        _removerUsuarioCommandHandler = removerUsuarioCommandHandler;
+        _suspenderUsuarioCommandHandler = suspenderUsuarioCommandHandler;
+        _ativarUsuarioCommandHandler = ativarUsuarioCommandHandler;
+        _modificarUsuarioCommandHandler = modificarUsuarioCommandHandler;
+        _alterarPerfilParaGestorCommandHandler = alterarPerfilParaGestorCommandHandler;
+        _alterarPerfilParaDoadorCommandHandler = alterarPerfilParaDoadorCommandHandler;
+    }
 
 
 
 
 
-    /// <summary>Cadastrar novo doador</summary>
+    /// <summary>
+    /// UC-01 - Cadastrar um novo usuario
+    /// </summary>
+    /// <remarks>   
+    /// 
+    /// Cadastra um novo usuário no sistema.
+    /// O novo usuario sempre será um doador.
+    /// 
+    /// **Esse endpoint não requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Nome:**
+    ///   - `O campo NomeCompleto é obrigatório.`
+    ///   - `O NomeCompleto deve ter no minimo 5 e no máximo 100 caracteres.`
+    /// * **Email:**
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `Formato de e-mail deve ser válido.`
+    ///   - `O e-mail não pode ter sido previamente cadastrado.`
+    /// * **CPF:** 
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `O cpf não pode ter sido previamente cadastrado.`
+    ///   - `O cpf deve ser digitado somente com números, sem ponto (.) e traco (-)`
+    ///   - `O cpf deve ser válido.`
+    /// * **Senha:**
+    ///   - `O campo Senha é obrigatório.`
+    ///   - `A senha deve ter no mínimo 8 caracteres.`
+    ///   - `A Senha deve conter: letra maiúscula, minúscula, número e caracter especial.`
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>Usuario {Nome, E-mail, Nive de Acesso, Status, Biblioteca }</returns>
+    /// <response code="201">Usuário cadastrado com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [ProducesResponseType(typeof(CriarUsuarioResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -38,7 +96,7 @@ public class UsuarioController : ControllerBase
         _logger.LogInformation("Iniciando criação de usuario: " + request.Email, BaseLogType.LOG, request.Email);
         var command = new CriarUsuarioCommand(request.NomeCompleto, request.Email, request.Cpf, request.Password);
         
-        var result = await _criarUsuarioHandler.HandleAsync(command, ct);
+        var result = await _criarUsuarioCommandHandler.HandleAsync(command, ct);
 
         if (!result.IsSuccess)
         {
@@ -53,102 +111,370 @@ public class UsuarioController : ControllerBase
 
 
 
-    /*
-    /// <summary>UC-01 - Cadastrar novo doador</summary>
-    [HttpPost]
-    [ProducesResponseType(typeof(CriarUsuarioResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    /// <summary>
+    /// UC-04 - Visualizar os dados de um usuario
+    /// </summary>
+    /// <remarks>  
+    /// 
+    /// Visualiza os dados de um usuário no sistema pelo e-mail.
+    /// 
+    /// 
+    /// **Esse endpoint requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Email:**
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `Formato de e-mail deve ser válido.`
+    ///   Doadores consultam seu próprio perfil.
+    ///   Gestores podem consultar qualquer perfil
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>UsuarioDTO {Nome, E-mail, CPF, Perfil, Status}</returns>
+    /// <response code="201">Usuário cadastrado com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [Authorize(Roles = "GESTOR_ONG,DOADOR")]
+    [HttpGet]
+    [ProducesResponseType(typeof(ObterUsuarioResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioRequest request, CancellationToken ct)
+    public async Task<IActionResult> ObterUsuario([FromQuery] ObterUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando criação de usuario: " + request.Email, request);
-        var command = new CriarUsuarioCommand(request.NomeCompleto, request.Email, request.Cpf, request.Password);
+        _logger.LogInformation("Iniciando busca de usuario: " + request.Email, BaseLogType.LOG, request);
 
-        var result = await _criarUsuarioHandler.HandleAsync(command, ct);
+        var command = new ObterUsuarioCommand(request.Email);
+
+        var result = await _obterUsuarioCommandHandler.HandleAsync(command, ct);
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, result);
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario criado com sucesso: " + result.Value.Email, result.Value);
-        return Created(string.Empty, result.Value);
-    }
-
-    */
-
-    /// <summary>UC-04 - Visualizar perfil proprio </summary>
-    /// 
-    /// <summary>UC-05 - Editar perfil proprio </summary>
-    /// 
-    /// <summary>UC-06 - Solicitar Exclusao </summary>
-    /// 
-    /// <summary>UC-07 - Gestor Cadastrar usuario </summary>
-    /// 
-    /// <summary>UC-08 - Gestor Suspender Usuario </summary>
-    /// 
-    /// <summary>UC-09 - Usuario Modificar Senha </summary>
-    /// UC10 — Usuário Resetar Senha via Email
-    /// UC11 — Gestor Alterar Role de Usuário
-    /// UC32 — Gestor Visualizar Auditoria de Usuário
-
-    /*
-    /// <summary>Autenticar usuário</summary>
-    [HttpPost("login")]
-    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
-    {
-        var result = await _login.ExecuteAsync(request, ct);
-        if (!result.IsSuccess) return MapError(result.Error!);
+        _logger.LogInformation("Usuario obtido com sucesso: " + result.Value?.Email, BaseLogType.LOG, result);
         return Ok(result.Value);
     }
 
-    /// <summary>Renovar access token via refresh token</summary>
-    [HttpPost("refresh")]
-    [ProducesResponseType(typeof(RefreshTokenResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken ct)
+
+
+
+
+    /// <summary>
+    /// UC-05 - Remover usuario 
+    /// </summary>
+    /// <remarks>   
+    /// 
+    /// De acordo com LGPD o usuário pode solicitar a exclusão de seus dados pessoais.
+    /// Os dados do usuário serão removidos fisicamente do banco de dados,
+    /// Porém as doações realizadas por ele permanecerão no sistema, para efeito de auditoria,
+    /// podendo ser consultadas em caso de auditoria pela Receita Federal ou para fins de transparência e prestação de contas da ONG.
+    /// 
+    /// 
+    /// **Esse endpoint requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Email:**
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `Formato de e-mail deve ser válido.`
+    ///   Apenas o próprio usuário pode solicitar a exclusão de seus dados
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>true</returns>
+    /// <response code="201">Usuário removido com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [Authorize(Roles = "GESTOR_ONG,DOADOR")]
+    [HttpDelete]
+    [ProducesResponseType(typeof(ObterUsuarioResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RemoverUsuario([FromQuery] RemoverUsuarioRequest request, CancellationToken ct)
     {
-        var result = await _refresh.ExecuteAsync(request, ct);
-        if (!result.IsSuccess) return MapError(result.Error!);
+        _logger.LogInformation("Iniciando remocao de usuario: " + request.Email, BaseLogType.LOG, request);
+
+        var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+        var command = new RemoverUsuarioCommand(request.Email, token);
+
+        var result = await _removerUsuarioCommandHandler.HandleAsync(command, ct);
+
+        if (!result.IsSuccess)
+        {
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            return BadRequest(result.Error);
+        }
+
+        _logger.LogInformation("Usuario removido com sucesso: " + request.Email, BaseLogType.LOG, result);
+        return Ok("Usuario removido com sucesso: " + request.Email);
+    }
+
+
+
+
+    /// <summary>
+    /// UC-07 - Suspender usuario
+    /// </summary>
+    /// <remarks>   
+    /// 
+    /// Atualiza status do usuário para SUSPENDED
+    /// 
+    /// **Esse endpoint requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Email:**
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `Formato de e-mail deve ser válido.`
+    ///   Apenas o próprio usuário pode solicitar a exclusão de seus dados
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>true</returns>
+    /// <response code="201">Usuário suspenso com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [Authorize(Roles = "GESTOR_ONG")]
+    [HttpPut("suspender")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SuspenderUsuario([FromQuery] SuspenderUsuarioRequest request, CancellationToken ct)
+    {
+        _logger.LogInformation("Iniciando suspensao de usuario: " + request.Email, BaseLogType.LOG, request);
+
+        var command = new SuspenderUsuarioCommand(request.Email);
+
+        var result = await _suspenderUsuarioCommandHandler.HandleAsync(command, ct);
+
+        if (!result.IsSuccess)
+        {
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            return BadRequest(result.Error);
+        }
+
+        _logger.LogInformation("Usuario suspenso com sucesso: " + request.Email, BaseLogType.LOG, result);
+        return Ok("Usuario suspenso com sucesso: " + request.Email);
+    }
+
+
+
+
+    /// <summary>
+    /// UC-08 - Ativar usuario
+    /// </summary>
+    /// <remarks> 
+    /// 
+    /// Atualiza status do usuário para ACTIVE
+    /// 
+    /// **Esse endpoint requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Email:**
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `Formato de e-mail deve ser válido.`
+    ///   Apenas o próprio usuário pode solicitar a exclusão de seus dados
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>true</returns>
+    /// <response code="201">Usuário ativado com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [Authorize(Roles = "GESTOR_ONG")]
+    [HttpPut("ativar")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AtivarUsuario([FromQuery] AtivarUsuarioRequest request, CancellationToken ct)
+    {
+        _logger.LogInformation("Iniciando ativação de usuario: " + request.Email, BaseLogType.LOG, request);
+
+        var command = new AtivarUsuarioCommand(request.Email);
+
+        var result = await _ativarUsuarioCommandHandler.HandleAsync(command, ct);
+
+        if (!result.IsSuccess)
+        {
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            return BadRequest(result.Error);
+        }
+
+        _logger.LogInformation("Usuario ativado com sucesso: " + request.Email, BaseLogType.LOG, result);
+        return Ok("Usuario ativado com sucesso: " + request.Email);
+    }
+
+
+
+
+    /// <summary>
+    /// UC-09 - Alterar perfil de usuario para GESTOR_ONG
+    /// </summary>
+    /// <remarks>   
+    /// 
+    /// Atualiza perfil para GESTOR_ONG, permitindo que o usuário tenha acesso a 
+    /// funcionalidades administrativas, como ativar ou suspender outros usuários.
+    /// 
+    /// **Esse endpoint requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Email:**
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `Formato de e-mail deve ser válido.`
+    ///   Apenas o próprio usuário pode solicitar a exclusão de seus dados
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>true</returns>
+    /// <response code="201">Perfil atualizado com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [Authorize(Roles = "GESTOR_ONG")]
+    [HttpPut("alterar-para-gestor")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AlterarPerfilParaGestor([FromQuery] AlterarPerfilParaGestorRequest request, CancellationToken ct)
+    {
+        _logger.LogInformation("Iniciando alteração de perfil para gestor: " + request.Email, BaseLogType.LOG, request);
+
+        var command = new AlterarPerfilParaGestorCommand(request.Email);
+
+        var result = await _alterarPerfilParaGestorCommandHandler.HandleAsync(command, ct);
+
+        if (!result.IsSuccess)
+        {
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            return BadRequest(result.Error);
+        }
+
+        _logger.LogInformation("Perfil atualizado com sucesso: " + request.Email, BaseLogType.LOG, result);
+        return Ok("Perfil atualizado com sucesso: " + request.Email);
+    }
+
+
+
+
+    /// <summary>
+    /// UC-10 - Alterar perfil de usuario para DOADOR
+    /// </summary>
+    /// <remarks>   
+    /// 
+    /// Atualiza perfil para DOADOR, permitindo que o usuário tenha acesso a 
+    /// funcionalidades específicas, como realizar doações.
+    /// 
+    /// **Esse endpoint requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Email:**
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `Formato de e-mail deve ser válido.`
+    ///   Apenas o próprio usuário pode solicitar a exclusão de seus dados
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>true</returns>
+    /// <response code="201">Perfil atualizado com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [Authorize(Roles = "GESTOR_ONG")]
+    [HttpPut("alterar-para-doador")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AlterarPerfilParaDoador([FromQuery] AlterarPerfilParaDoadorRequest request, CancellationToken ct)
+    {
+        _logger.LogInformation("Iniciando alteração de perfil para doador: " + request.Email, BaseLogType.LOG, request);
+
+        var command = new AlterarPerfilParaDoadorCommand(request.Email);
+
+        var result = await _alterarPerfilParaDoadorCommandHandler.HandleAsync(command, ct);
+
+        if (!result.IsSuccess)
+        {
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            return BadRequest(result.Error);
+        }
+
+        _logger.LogInformation("Perfil atualizado com sucesso: " + request.Email, BaseLogType.LOG, result);
+        return Ok("Perfil atualizado com sucesso: " + request.Email);
+    }
+
+
+
+
+    /// <summary>
+    /// UC-11 - Modificar usuario
+    /// </summary>
+    /// <remarks>   
+    /// 
+    /// Atualiza o Nome Completo e Cpf para o Usuario
+    /// 
+    /// **Esse endpoint requer autenticacao**
+    /// 
+    /// **Regras de Validação:**
+    /// 
+    /// * **Nome:**
+    ///   - `O campo NomeCompleto é obrigatório.`
+    ///   - `O NomeCompleto deve ter no minimo 5 e no máximo 100 caracteres.`
+    /// * **CPF:** 
+    ///   - `O campo E-mail é obrigatório.`
+    ///   - `O cpf não pode ter sido previamente cadastrado.`
+    ///   - `O cpf deve ser digitado somente com números, sem ponto (.) e traco (-)`
+    ///   - `O cpf deve ser válido.`
+    /// 
+    /// </remarks>
+    /// <param name="request"></param>
+    /// <returns>true</returns>
+    /// <response code="201">Usuário modificado com sucesso.</response>
+    /// <response code="400">Dados Inválidos</response>
+    /// <response code="422">Entidade não processada</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [Authorize(Roles = "GESTOR_ONG,DOADOR")]
+    [HttpPut("alterar")]
+    [ProducesResponseType(typeof(UsuarioDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ModificarUsuario([FromQuery] ModificarUsuarioRequest request, CancellationToken ct)
+    {
+        var emailLogado = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                         ?? User.FindFirst("email")?.Value;
+
+        _logger.LogInformation("Iniciando modificação de usuario: " + emailLogado, BaseLogType.LOG, request);
+
+        var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+        var command = new ModificarUsuarioCommand(request.NomeCompleto, request.Cpf);
+
+        var result = await _modificarUsuarioCommandHandler.HandleAsync(command, ct);
+
+        if (!result.IsSuccess)
+        {
+            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            return BadRequest(result.Error);
+        }
+
+        _logger.LogInformation("Usuario modificado com sucesso: " + emailLogado, BaseLogType.LOG, result.Value);
         return Ok(result.Value);
     }
-
-    /// <summary>Solicitar reset de senha (resposta sempre genérica)</summary>
-    [HttpPost("forgot-password")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> ForgotPassword(
-        [FromBody] ForgotPasswordRequest request, CancellationToken ct)
-    {
-        await _forgotPassword.ExecuteAsync(request, GetCorrelationId(), ct);
-        return Ok(new { message = ApplicationErrors.Auth_ForgotPassword_Message });
-    }
-
-    /// <summary>Confirmar nova senha com token recebido por e-mail</summary>
-    [HttpPost("reset-password")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> ResetPassword(
-        [FromBody] ResetPasswordRequest request, CancellationToken ct)
-    {
-        var result = await _resetPassword.ExecuteAsync(request, ct);
-        if (!result.IsSuccess) return MapError(result.Error!);
-        return Ok(new { message = ApplicationErrors.Auth_ResetPassword_Success });
-    }
-
-    private string? GetCorrelationId() => HttpContext.Items["CorrelationId"]?.ToString();
-
-    private IActionResult MapError(string error)
-    {
-        var cid = GetCorrelationId();
-        if (error == ApplicationErrors.Auth_EmailAlreadyExists) return Conflict(ErrorResponse.Conflict(error, cid));
-        if (error == ApplicationErrors.Auth_CpfAlreadyExists)   return Conflict(ErrorResponse.Conflict(error, cid));
-        if (error == ApplicationErrors.Auth_InvalidCredentials)  return Unauthorized(ErrorResponse.Unauthorized(cid));
-        if (error == ApplicationErrors.Auth_AccountSuspended)    return StatusCode(403, ErrorResponse.Forbidden(error, cid));
-        if (error == ApplicationErrors.Auth_InvalidRefreshToken) return Unauthorized(ErrorResponse.Unauthorized(cid));
-        return UnprocessableEntity(ErrorResponse.Validation(error, new(), cid));
-    }
-    */
 }

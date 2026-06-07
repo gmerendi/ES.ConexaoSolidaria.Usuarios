@@ -1,5 +1,6 @@
 ﻿using Usuarios.Application.Shared;
 using Usuarios.Domain.Entities.Usuarios;
+using Usuarios.Domain.Entities.Usuarios.DTO;
 using Usuarios.Domain.Entity.Usuarios;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Exceptions;
@@ -11,24 +12,19 @@ namespace Usuarios.Application.Features.Auth
     public class LogarUsuarioCommandHandler : IUseCaseHandler<LogarUsuarioCommand, Result<LogarUsuarioResponse>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
-        private readonly IUserContext _userContext;
         private readonly IBaseLogger<LogarUsuarioCommandHandler> _logger;
-        private readonly IUsuarioDomainService _usuarioDomainService;
-        private readonly IMessageService _messageService;
         private readonly ITokenService _tokenService;
         private readonly ICryptoService _cryptoService;
+        private readonly ICacheService _cacheService;
 
-        public LogarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<LogarUsuarioCommandHandler> logger, IUsuarioDomainService usuarioDomainService, 
-            IMessageService messageService, ITokenService tokenService, ICryptoService cryptoService)
+        public LogarUsuarioCommandHandler(IUsuarioRepository usuarioRepository,IBaseLogger<LogarUsuarioCommandHandler> logger,
+            ITokenService tokenService, ICryptoService cryptoService, ICacheService cacheService)
         {
             _usuarioRepository = usuarioRepository;
-            _userContext = userContext;
             _logger = logger;
-            _usuarioDomainService = usuarioDomainService;
-            _messageService = messageService;
             _tokenService = tokenService;
             _cryptoService = cryptoService;
+            _cacheService = cacheService;
         }
 
         public async Task<Result<LogarUsuarioResponse>> HandleAsync(LogarUsuarioCommand command, CancellationToken ct)
@@ -48,7 +44,7 @@ namespace Usuarios.Application.Features.Auth
 
                 if (usuario == null)
                 { 
-                    throw new DomainException("401_USER_NOT_FOUND");
+                    throw new DomainException("400_USER_NOT_FOUND");
                 }
 
                 if (usuario.Status == EntityStatus.SUSPENDED)
@@ -71,7 +67,12 @@ namespace Usuarios.Application.Features.Auth
                 // 4. Se passou, gera o Token JWT
                 var (token, expiracao) = _tokenService.GetToken(usuario);
 
-                // 5. Devolve o resultado elaborado para a controller
+                // 5. Insere usuario no cache 
+                var cacheKey = $"usuario:{usuario.Email.Endereco}";
+                var usuarioCache = UsuarioDTO.FromEntity(usuario);
+                await _cacheService.SetAsync(cacheKey, usuarioCache, TimeSpan.FromMinutes(30));
+
+                // 6. Devolve o resultado elaborado para a controller
                 var resultado = new LogarUsuarioResponse(token, expiracao, usuario.Guid, usuario.Email.Endereco, usuario.Status.ToString());
                 return Result<LogarUsuarioResponse>.Success(resultado);
             }

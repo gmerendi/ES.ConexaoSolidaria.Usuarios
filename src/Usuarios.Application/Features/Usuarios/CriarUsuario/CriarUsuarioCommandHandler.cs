@@ -1,5 +1,6 @@
 ﻿using Usuarios.Application.Shared;
 using Usuarios.Domain.Entities.Usuarios;
+using Usuarios.Domain.Entities.Usuarios.DTO;
 using Usuarios.Domain.Entity.Usuarios;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Exceptions;
@@ -15,16 +16,18 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IBaseLogger<CriarUsuarioCommandHandler> _logger;
         private readonly IUsuarioDomainService _usuarioDomainService;
         private readonly IMessageService _messageService;
+        private readonly ICacheService _cacheService;
 
         public CriarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
             IBaseLogger<CriarUsuarioCommandHandler> logger, IUsuarioDomainService usuarioDomainService, 
-            IMessageService messageService)
+            IMessageService messageService, ICacheService cacheService)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
             _usuarioDomainService = usuarioDomainService;
             _messageService = messageService;
+            _cacheService = cacheService;
         }
 
         public async Task<Result<CriarUsuarioResponse>> HandleAsync(CriarUsuarioCommand command, CancellationToken ct)
@@ -66,17 +69,18 @@ namespace Usuarios.Application.Features.Usuarios
                 // 5 - Gravar o usuário
                 await _usuarioRepository.CadastrarAsync(usuario);
 
-                // 6 - Enviar mensagem de usuario  criado
+                // 6 - Enviar mensagem de usuario criado
                 await _messageService.SendUserCreatedEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
 
+                var usuarioFinal = UsuarioDTO.FromEntity(usuario);
                 var response = new CriarUsuarioResponse
                 (
-                    usuario.Guid,
-                    usuario.NomeCompleto,
-                    Cpf.Anonymize(usuario.Cpf.Numero),
-                    usuario.Email.Endereco,
-                    usuario.Perfil.ToString(),
-                    usuario.Status.ToString()
+                    usuarioFinal.Guid,
+                    usuarioFinal.NomeCompleto,
+                    usuarioFinal.Cpf,
+                    usuarioFinal.Email,
+                    usuarioFinal.Perfil,
+                    usuarioFinal.Status
                 );
                 return Result<CriarUsuarioResponse>.Success(response);
             }

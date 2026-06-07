@@ -109,7 +109,7 @@ services:
       ConnectionStrings__Database: "Host=cs-usuarios-db;Port=5432;Database=cs-usuarios;Username=fiap;Password=fiap123"
       ConnectionStrings__ConnectionString: "Host=cs-usuarios-db;Port=5432;Database=cs-usuarios;Username=fiap;Password=fiap123"
       ConnectionStrings__AuditLog: "http://cs-dynamo-db:8000"
-      ConnectionStrings__Redis: "fcg-redis:6379"
+      ConnectionStrings__Redis: "cs-redis:6379"
 
       #RabbitMq
       RabbitMq__Host: "cs-rabbitmq"

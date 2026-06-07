@@ -69,6 +69,7 @@ builder.Services.AddRepositories(logger);
 builder.Services.AddAuditLog(builder.Configuration, logger);
 builder.Services.AddMessaging(builder.Configuration, logger);
 builder.Services.AddAuthenticationServices(builder.Configuration,logger);
+builder.Services.AddCacheService(builder.Configuration, logger);
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Infrastructure Extensions ", logCounter, logTotal);
 
 
@@ -77,13 +78,6 @@ logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Infrastruct
 // ──────────────────────────────────────────────────────────────────────────────
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
@@ -97,14 +91,20 @@ app.MapControllers();
 // ──────────────────────────────────────────────────────────────────────────────
 // ── Middlewares
 // ──────────────────────────────────────────────────────────────────────────────
+logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Middlewares ", logCounter++, logTotal);
+app.UseSwaggerMiddleware(logger);
 app.UseCorrelationMiddleware();
 app.UseExceptionMiddleware();
+app.UseTokenBlacklistMiddleware();
+logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Middlewares ", logCounter, logTotal);
 
 
 // ──────────────────────────────────────────────────────────────────────────────
 // ── Migrations
 // ──────────────────────────────────────────────────────────────────────────────
+logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Migrations ", logCounter++, logTotal);
 app.ApplyMigrations(logger);
+logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Migrations ", logCounter, logTotal);
 
 
 // ──────────────────────────────────────────────────────────────────────────────

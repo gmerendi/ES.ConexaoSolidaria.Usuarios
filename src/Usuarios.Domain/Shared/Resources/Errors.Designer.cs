@@ -151,6 +151,33 @@ namespace Usuarios.Domain.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Status é obrigatório.
+        /// </summary>
+        public static string _400_STATUS_REQUIRED {
+            get {
+                return ResourceManager.GetString("400_STATUS_REQUIRED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Token JWT é requerido.
+        /// </summary>
+        public static string _400_TOKEN_REQUIRED {
+            get {
+                return ResourceManager.GetString("400_TOKEN_REQUIRED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não existe usuario cadastrado com o e-mail informado..
+        /// </summary>
+        public static string _400_USER_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("400_USER_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Senha inválida.
         /// </summary>
         public static string _401_INVALID_CREDENTIALS {
@@ -160,11 +187,29 @@ namespace Usuarios.Domain.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Não existe usuario cadastrado com o e-mail informado..
+        ///   Looks up a localized string similar to Token revogado (Usuário efetuou logout ou foi bloqueado)..
         /// </summary>
-        public static string _401_USER_NOT_FOUND {
+        public static string _401_TOKEN_REVOKED {
             get {
-                return ResourceManager.GetString("401_USER_NOT_FOUND", resourceCulture);
+                return ResourceManager.GetString("401_TOKEN_REVOKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Um gestor não pode suspender o próprio perfil..
+        /// </summary>
+        public static string _403_FORBIDDEN_CANNOT_SUSPEND_SELF {
+            get {
+                return ResourceManager.GetString("403_FORBIDDEN_CANNOT_SUSPEND_SELF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password incorreto.
+        /// </summary>
+        public static string _403_PASSWORD_INCORRECT {
+            get {
+                return ResourceManager.GetString("403_PASSWORD_INCORRECT", resourceCulture);
             }
         }
         
@@ -210,6 +255,15 @@ namespace Usuarios.Domain.Shared.Resources {
         public static string _403_USER_DELETED {
             get {
                 return ResourceManager.GetString("403_USER_DELETED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acesso não permitido.
+        /// </summary>
+        public static string _403_USER_NOT_ALLOWED {
+            get {
+                return ResourceManager.GetString("403_USER_NOT_ALLOWED", resourceCulture);
             }
         }
         

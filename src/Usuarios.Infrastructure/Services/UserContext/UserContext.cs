@@ -29,13 +29,14 @@ namespace Usuarios.Infrastructure.Services.UserContext
             var guidStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user.FindFirst("sub")?.Value;
             _ = Guid.TryParse(guidStr, out Guid userGuid);
 
-            var nomeCompleto = user.FindFirst(ClaimTypes.Name)?.Value ?? user.FindFirst("name")?.Value ?? "Unknown";
+            var nomeCompleto = user.FindFirst(ClaimTypes.Name)?.Value ?? user.FindFirst("name")?.Value ?? "";
 
-            var cpfStr = user.FindFirst("cpf")?.Value ?? "00000000000";
-            var emailStr = user.FindFirst(ClaimTypes.Email)?.Value ?? user.FindFirst("email")?.Value ?? "unknown@fcg.internal";
+            var cpf = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user.FindFirst("cpf")?.Value ?? "";
+
+            var emailStr = user.FindFirst(ClaimTypes.Email)?.Value ?? user.FindFirst("email")?.Value ?? "";
 
             // 3. Faz o Parse dos Enums com segurança
-            var perfilStr = user.FindFirst(ClaimTypes.Role)?.Value ?? user.FindFirst("perfil")?.Value ?? "User";
+            var perfilStr = user.FindFirst(ClaimTypes.Role)?.Value ?? user.FindFirst("perfil")?.Value ?? "";
             if (!Enum.TryParse(perfilStr, true, out Perfil perfilEnum))
             {
                 perfilEnum = Perfil.DOADOR; // Valor padrão caso falhe
@@ -47,14 +48,14 @@ namespace Usuarios.Infrastructure.Services.UserContext
                 statusEnum = EntityStatus.ACTIVE; // Valor padrão caso falhe
             }
 
-            // 4. Retorna o DTO utilizando o construtor que você definiu
+            // 4. Retorna o DTO 
             return new UsuarioDTO(
                 userGuid,
                 nomeCompleto,
-                Cpf.Create(cpfStr), 
-                Email.Create(emailStr),
-                perfilEnum,
-                statusEnum
+                cpf,
+                emailStr,
+                perfilEnum.ToString(),
+                statusEnum.ToString()
             );
         }
     }

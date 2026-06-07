@@ -14,8 +14,17 @@ namespace Usuarios.Application.Extensions
             // ApplicationServices
             
 
-            services.AddScoped <IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>>, CriarUsuarioCommandHandler >();
-            services.AddScoped <IUseCaseHandler<LogarUsuarioCommand, Result<LogarUsuarioResponse>>, LogarUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>>, CriarUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<ObterUsuarioCommand, Result<ObterUsuarioResponse>>, ObterUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<LogarUsuarioCommand, Result<LogarUsuarioResponse>>, LogarUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<DeslogarUsuarioCommand, Result<bool>>, DeslogarUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<RemoverUsuarioCommand, Result<bool>>, RemoverUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<ResetarSenhaCommand, Result<string>>, ResetarSenhaCommandHandler>();
+            services.AddScoped<IUseCaseHandler<SuspenderUsuarioCommand, Result<bool>>, SuspenderUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<AtivarUsuarioCommand, Result<bool>>, AtivarUsuarioCommandHandler>();
+            services.AddScoped<IUseCaseHandler<AlterarPerfilParaGestorCommand, Result<bool>>, AlterarPerfilParaGestorCommandHandler>();
+            services.AddScoped<IUseCaseHandler<AlterarPerfilParaDoadorCommand, Result<bool>>, AlterarPerfilParaDoadorCommandHandler>();
+            services.AddScoped<IUseCaseHandler<ModificarUsuarioCommand, Result<ModificarUsuarioResponse>>, ModificarUsuarioCommandHandler>();
 
             logger.LogInformation(" ***** UseCase services inicializados.");
 
