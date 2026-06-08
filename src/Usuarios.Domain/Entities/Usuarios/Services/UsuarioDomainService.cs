@@ -8,7 +8,7 @@ public class UsuarioDomainService : IUsuarioDomainService
     public void PodeRemoverUsuario(Usuario solicitante, Usuario usuarioAlvo)
     {
         // Pode remover se é Gestor OU se está removendo a si mesmo
-        if (solicitante.Perfil == Perfil.GESTOR_ONG || solicitante.Guid == usuarioAlvo.Guid)
+        if (solicitante.Perfil == Perfil.GESTOR_ONG || solicitante.Email.Endereco == usuarioAlvo.Email.Endereco)
         {
             return;
         }
@@ -25,7 +25,7 @@ public class UsuarioDomainService : IUsuarioDomainService
         }
 
         // Regra 2: Se for o próprio usuário alterando a si mesmo, valida o status
-        if (solicitante.Guid == usuarioAlvo.Guid)
+        if (solicitante.Email.Endereco == usuarioAlvo.Email.Endereco)
         {
             switch (usuarioAlvo.Status)
             {
@@ -50,7 +50,7 @@ public class UsuarioDomainService : IUsuarioDomainService
         }
 
         // Regra 2: Admin não pode alterar seu próprio perfil (Segurança) ou status
-        if (solicitante.Guid == usuarioAlvo.Guid)
+        if (solicitante.Email.Endereco == usuarioAlvo.Email.Endereco)
         {
             throw new DomainException("403_USER_CANNOT_MODIFY_OWN_ACCESS_LEVEL");
         }

@@ -6,7 +6,9 @@
     <Project Path="src/Usuarios.Domain/Usuarios.Domain.csproj" />
     <Project Path="src/Usuarios.Infrastructure/Usuarios.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/Usuarios.Test/Usuarios.Test.csproj" Id="5b19b5fe-630d-47cf-a9c6-2161628d780e" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
