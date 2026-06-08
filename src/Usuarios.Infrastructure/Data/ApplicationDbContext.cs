@@ -56,7 +56,6 @@ namespace Usuarios.Infrastructure.Data
 
                     while (!File.Exists(Path.Combine(basePath, "appsettings.json")) && basePath != null)
                     {
-                        Console.WriteLine("entrou");
                         basePath = Directory.GetParent(basePath)?.FullName;
                         if (basePath == null) break;
                     }
