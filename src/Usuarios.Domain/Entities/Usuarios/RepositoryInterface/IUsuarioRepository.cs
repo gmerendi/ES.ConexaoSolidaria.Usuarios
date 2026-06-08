@@ -1,7 +1,7 @@
 ﻿using Usuarios.Domain.Entities.Usuarios;
 using Usurios.Domain.Shared.Interfaces;
 
-namespace Usuarios.Domain.Entity.Usuarios
+namespace Usuarios.Domain.Entities.Usuarios
 {
     public interface IUsuarioRepository : IRepository<Usuario>
     {

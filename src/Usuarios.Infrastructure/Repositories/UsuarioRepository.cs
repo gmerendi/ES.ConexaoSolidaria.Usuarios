@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Usuarios.Domain.Entities.Usuarios;
-using Usuarios.Domain.Entity.Usuarios;
 using Usuarios.Infrastructure.Data;
 
 namespace Usuarios.Infrastructure.Repositories;
