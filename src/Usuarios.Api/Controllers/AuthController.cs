@@ -35,6 +35,7 @@ public class AuthController : ControllerBase
     /// UC-02 - Realizar Login
     /// </summary>
     /// <remarks>
+    /// 
     /// **Efetua a autenticação do usuário no sistema.**
     /// 
     /// Se as credenciais estiverem corretas, gera um Token JWT e registra a sessão ativa no cache (Redis).
@@ -78,12 +79,15 @@ public class AuthController : ControllerBase
 
 
 
-    // <summary>
-    /// UC-03 - Efetuar Logout do Usuário
+    /// <summary>
+    /// UC-03 - Realizar Logout
     /// </summary>
     /// <remarks>
+    /// 
     /// Invalida o token JWT atual enviando-o para uma Blacklist no Redis pelo tempo restante de vida do token 
     /// e limpa as informações do usuário que estavam armazenadas em cache.
+    /// 
+    /// **Esse endpoint requer autenticacao**
     /// 
     /// </remarks>
     /// <param name="ct">Token de cancelamento da requisição (CancellationToken).</param>
@@ -128,12 +132,11 @@ public class AuthController : ControllerBase
 
     /// <summary>
     /// UC-06 - Resetar senha de usuario
-    /// 
-    /// Reseta senha do usuário. O usuário receberá um email notificando que a senha foi resetada.
-    /// 
-    /// 
     /// </summary>
     /// <remarks>   
+    /// 
+    ///  Reseta senha do usuário. O usuário receberá um email notificando que a senha foi resetada.
+    ///  
     /// **Esse endpoint requer autenticacao**
     /// 
     /// **Regras de Validação:**

@@ -1,4 +1,4 @@
-﻿namespace Usuarios.Domain.Entities.Usuarios
+﻿namespace Usuarios.Domain.Enums
 {
     public enum Perfil
     {

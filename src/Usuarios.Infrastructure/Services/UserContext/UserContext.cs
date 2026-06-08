@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using Usuarios.Domain.Entities.Usuarios;
-using Usuarios.Domain.Entities.Usuarios.DTO;
 using Usuarios.Domain.Enums;
+using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Infrastructure.Services.UserContext
 {
@@ -15,7 +14,7 @@ namespace Usuarios.Infrastructure.Services.UserContext
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public UsuarioDTO? GetUser()
+        public SystemUser? GetUser()
         {
             var user = _httpContextAccessor.HttpContext?.User;
 
@@ -48,8 +47,8 @@ namespace Usuarios.Infrastructure.Services.UserContext
                 statusEnum = EntityStatus.ACTIVE; // Valor padrão caso falhe
             }
 
-            // 4. Retorna o DTO 
-            return new UsuarioDTO(
+            // 4. Retorna o Usuario do Sistema
+            return new SystemUser(
                 userGuid,
                 nomeCompleto,
                 cpf,

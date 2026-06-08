@@ -1,6 +1,6 @@
-﻿using Usuarios.Domain.Entities.Usuarios.DTO;
+﻿using Usuarios.Domain.Shared.Primitives;
 
 public interface IUserContext
 {
-    UsuarioDTO? GetUser();
+    SystemUser? GetUser();
 }
