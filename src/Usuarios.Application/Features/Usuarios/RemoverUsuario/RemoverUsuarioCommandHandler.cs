@@ -1,6 +1,5 @@
-﻿using CS.Domain.Events;
-using Usuarios.Application.Shared;
-using Usuarios.Domain.Entity.Usuarios;
+﻿using Usuarios.Application.Shared;
+using Usuarios.Domain.Entities.Usuarios;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Exceptions;
 using Usuarios.Domain.Shared.Interfaces;

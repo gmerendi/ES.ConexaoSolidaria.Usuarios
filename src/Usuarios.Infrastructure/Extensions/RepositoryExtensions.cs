@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Usuarios.Domain.Entity.Usuarios;
+using Usuarios.Domain.Entities.Usuarios;
 using Usuarios.Infrastructure.Repositories;
 
 namespace Usuarios.Infrastructure.Extensions
