@@ -1,12 +1,24 @@
 <Solution>
   <Folder Name="/docs/" />
+  <Folder Name="/observability/" />
+  <Folder Name="/observability/grafana/" />
+  <Folder Name="/observability/grafana/provisioning/" />
+  <Folder Name="/observability/grafana/provisioning/dashboards/">
+    <File Path="observability/grafana/provisioning/dashboards/dashboard.yml" />
+    <File Path="observability/grafana/provisioning/dashboards/usuarios-api.json" />
+  </Folder>
+  <Folder Name="/observability/prometheus/">
+    <File Path="observability/prometheus/prometheus.yml" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Usuarios.Api/Usuarios.Api.csproj" />
     <Project Path="src/Usuarios.Application/Usuarios.Application.csproj" />
     <Project Path="src/Usuarios.Domain/Usuarios.Domain.csproj" />
     <Project Path="src/Usuarios.Infrastructure/Usuarios.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/Usuarios.Test/Usuarios.Test.csproj" Id="5b19b5fe-630d-47cf-a9c6-2161628d780e" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

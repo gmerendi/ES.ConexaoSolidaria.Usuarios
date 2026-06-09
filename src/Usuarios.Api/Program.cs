@@ -1,3 +1,4 @@
+using Prometheus;
 using Usuarios.Api.Configuration;
 using Usuarios.Api.Extensions;
 using Usuarios.Api.Middlewares;
@@ -70,6 +71,7 @@ builder.Services.AddAuditLog(builder.Configuration, logger);
 builder.Services.AddMessaging(builder.Configuration, logger);
 builder.Services.AddAuthenticationServices(builder.Configuration,logger);
 builder.Services.AddCacheService(builder.Configuration, logger);
+builder.Services.AddMetricsServices(logger);
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Infrastructure Extensions ", logCounter, logTotal);
 
 
@@ -86,6 +88,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// ──────────────────────────────────────────────────────────────────────────────
+// ── Observability
+// ──────────────────────────────────────────────────────────────────────────────
+logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Metrics ", logCounter++, logTotal);
+app.UseMetricServer();
+logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Metrics ", logCounter, logTotal);
 
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -96,6 +104,7 @@ app.UseSwaggerMiddleware(logger);
 app.UseCorrelationMiddleware();
 app.UseExceptionMiddleware();
 app.UseTokenBlacklistMiddleware();
+app.UseMetricsMiddleware();
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Middlewares ", logCounter, logTotal);
 
 

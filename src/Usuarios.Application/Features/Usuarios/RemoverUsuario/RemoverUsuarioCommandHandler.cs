@@ -14,15 +14,18 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IBaseLogger<RemoverUsuarioCommandHandler> _logger;
         private readonly ICacheService _cacheService;
         private readonly IMessageService _messageService;
+        private readonly IMetricsService _metrics;
 
         public RemoverUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<RemoverUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService)
+            IBaseLogger<RemoverUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
+            IMetricsService metrics)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
             _cacheService = cacheService;
             _messageService = messageService;
+            _metrics = metrics;
         }
 
         public async Task<Result<bool>> HandleAsync(RemoverUsuarioCommand command, CancellationToken ct)
@@ -60,6 +63,9 @@ namespace Usuarios.Application.Features.Usuarios
 
                 // 5 - Envia evento de remoção de usuário
                 await _messageService.SendUserRemovedEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
+
+                // ── Métrica de negócio ─────────────────────────────────────────
+                _metrics.IncrementarUsuarioRemovido();
 
                 return Result<bool>.Success(true);
             }

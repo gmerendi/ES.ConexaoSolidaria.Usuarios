@@ -16,10 +16,11 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IUsuarioDomainService _usuarioDomainService;
         private readonly IMessageService _messageService;
         private readonly ICacheService _cacheService;
+        private readonly IMetricsService _metrics;
 
         public CriarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
             IBaseLogger<CriarUsuarioCommandHandler> logger, IUsuarioDomainService usuarioDomainService, 
-            IMessageService messageService, ICacheService cacheService)
+            IMessageService messageService, ICacheService cacheService, IMetricsService metrics)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
@@ -27,6 +28,7 @@ namespace Usuarios.Application.Features.Usuarios
             _usuarioDomainService = usuarioDomainService;
             _messageService = messageService;
             _cacheService = cacheService;
+            _metrics = metrics;
         }
 
         public async Task<Result<CriarUsuarioResponse>> HandleAsync(CriarUsuarioCommand command, CancellationToken ct)
@@ -70,6 +72,9 @@ namespace Usuarios.Application.Features.Usuarios
 
                 // 6 - Enviar mensagem de usuario criado
                 await _messageService.SendUserCreatedEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
+
+                // ── Métrica de negócio ─────────────────────────────────────────
+                _metrics.IncrementarUsuarioCriado();
 
                 var usuarioFinal = UsuarioDTO.FromEntity(usuario);
                 var response = new CriarUsuarioResponse

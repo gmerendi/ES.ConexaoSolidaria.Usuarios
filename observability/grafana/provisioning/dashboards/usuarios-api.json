@@ -1,0 +1,527 @@
+{
+  "title": "ConexaoSolidaria — Usuarios API",
+  "uid": "conexao-solidaria-usuarios",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "tags": [ "conexao-solidaria", "usuarios", "dotnet" ],
+  "panels": [
+
+    {
+      "id": 1,
+      "title": "🖥️ CPU — Uso do Processo (.NET)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=\"usuarios-api\"}[1m])",
+          "legendFormat": "CPU (rate 1m)"
+        }
+      ]
+    },
+
+    {
+      "id": 2,
+      "title": "🧠 Memória — Heap .NET (Working Set)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "process_working_set_bytes{job=\"usuarios-api\"}",
+          "legendFormat": "Working Set"
+        },
+        {
+          "expr": "dotnet_total_memory_bytes{job=\"usuarios-api\"}",
+          "legendFormat": "GC Heap Total"
+        },
+        {
+          "expr": "process_virtual_memory_bytes{job=\"usuarios-api\"}",
+          "legendFormat": "Virtual Memory"
+        }
+      ]
+    },
+
+    {
+      "id": 3,
+      "title": "💾 Disco — Handles Abertos",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "process_open_handles{job=\"usuarios-api\"}",
+          "legendFormat": "File Handles Abertos"
+        }
+      ]
+    },
+
+    {
+      "id": 4,
+      "title": "🌐 Rede — Requisições HTTP por Segundo",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_count{job=\"usuarios-api\"}[1m])) by (route)",
+          "legendFormat": "{{ route }}"
+        }
+      ]
+    },
+
+    {
+      "id": 5,
+      "title": "🔐 Logins por Minuto",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 6,
+        "h": 6
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": [ "lastNotNull" ] },
+        "graphMode": "area"
+      },
+      "targets": [
+        {
+          "expr": "rate(usuarios_login_total{job=\"usuarios-api\"}[1m]) * 60",
+          "legendFormat": "Logins / min"
+        }
+      ]
+    },
+
+    {
+      "id": 6,
+      "title": "🚪 Logouts por Minuto",
+      "type": "stat",
+      "gridPos": {
+        "x": 6,
+        "y": 16,
+        "w": 6,
+        "h": 6
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": [ "lastNotNull" ] },
+        "graphMode": "area"
+      },
+      "targets": [
+        {
+          "expr": "rate(usuarios_logout_total{job=\"usuarios-api\"}[1m]) * 60",
+          "legendFormat": "Logouts / min"
+        }
+      ]
+    },
+
+    {
+      "id": 7,
+      "title": "👤 Novos Usuários (Total Acumulado)",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 6,
+        "h": 6
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": [ "lastNotNull" ] },
+        "graphMode": "none"
+      },
+      "targets": [
+        {
+          "expr": "usuarios_criados_total{job=\"usuarios-api\"}",
+          "legendFormat": "Total Criados"
+        }
+      ]
+    },
+
+    {
+      "id": 8,
+      "title": "🗑️ Usuários Removidos (Total Acumulado)",
+      "type": "stat",
+      "gridPos": {
+        "x": 18,
+        "y": 16,
+        "w": 6,
+        "h": 6
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": [ "lastNotNull" ] },
+        "graphMode": "none"
+      },
+      "targets": [
+        {
+          "expr": "usuarios_removidos_total{job=\"usuarios-api\"}",
+          "legendFormat": "Total Removidos"
+        }
+      ]
+    },
+
+    {
+      "id": 9,
+      "title": "⏱️ Latência HTTP — p90 / p95 / p99",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p99"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p90"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [ "mean", "max", "lastNotNull" ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{job=\"usuarios-api\"}[5m])) by (le, route))",
+          "legendFormat": "p90 — {{ route }}"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"usuarios-api\"}[5m])) by (le, route))",
+          "legendFormat": "p95 — {{ route }}"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=\"usuarios-api\"}[5m])) by (le, route))",
+          "legendFormat": "p99 — {{ route }}"
+        }
+      ]
+    },
+
+    {
+      "id": 10,
+      "title": "📊 Latência Média por Rota",
+      "type": "bargauge",
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 200
+              },
+              {
+                "color": "orange",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": [ "lastNotNull" ] },
+        "displayMode": "gradient"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_sum{job=\"usuarios-api\"}[5m])) by (route) / sum(rate(http_request_duration_seconds_count{job=\"usuarios-api\"}[5m])) by (route) * 1000",
+          "legendFormat": "{{ route }}"
+        }
+      ]
+    },
+
+    {
+      "id": 11,
+      "title": "🧵 Threads .NET em Uso",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "process_num_threads{job=\"usuarios-api\"}",
+          "legendFormat": "Threads Totais"
+        },
+        {
+          "expr": "dotnet_threadpool_num_threads{job=\"usuarios-api\"}",
+          "legendFormat": "Thread Pool"
+        }
+      ]
+    },
+
+    {
+      "id": 12,
+      "title": "🗑️ GC Collections por Geração",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 40,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 5
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(dotnet_collection_count_total{job=\"usuarios-api\", generation=\"0\"}[1m])",
+          "legendFormat": "GC Gen0"
+        },
+        {
+          "expr": "rate(dotnet_collection_count_total{job=\"usuarios-api\", generation=\"1\"}[1m])",
+          "legendFormat": "GC Gen1"
+        },
+        {
+          "expr": "rate(dotnet_collection_count_total{job=\"usuarios-api\", generation=\"2\"}[1m])",
+          "legendFormat": "GC Gen2"
+        }
+      ]
+    }
+
+  ]
+}
