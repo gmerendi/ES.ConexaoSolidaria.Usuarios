@@ -1,5 +1,15 @@
 <Solution>
   <Folder Name="/docs/" />
+  <Folder Name="/observability/" />
+  <Folder Name="/observability/grafana/" />
+  <Folder Name="/observability/grafana/provisioning/" />
+  <Folder Name="/observability/grafana/provisioning/dashboards/">
+    <File Path="observability/grafana/provisioning/dashboards/dashboard.yml" />
+    <File Path="observability/grafana/provisioning/dashboards/usuarios-api.json" />
+  </Folder>
+  <Folder Name="/observability/prometheus/">
+    <File Path="observability/prometheus/prometheus.yml" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Usuarios.Api/Usuarios.Api.csproj" />
     <Project Path="src/Usuarios.Application/Usuarios.Application.csproj" />

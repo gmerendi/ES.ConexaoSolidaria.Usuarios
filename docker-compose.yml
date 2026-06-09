@@ -5,6 +5,43 @@ volumes:
   usuarios_data: {}
   rabbitmq_data: {}
   rabbitmq_logs: {}
+  prometheus_data: {}
+  grafana_data: {}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Docker configs: injeta o conteúdo do arquivo diretamente no container
+# sem bind-mount de arquivo individual, evitando o erro do Docker Desktop
+# no Windows/WSL: "mount src=... not a directory"
+# ─────────────────────────────────────────────────────────────────────────────
+configs:
+  prometheus_config:
+    content: |
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+
+      scrape_configs:
+        - job_name: "usuarios-api"
+          static_configs:
+            - targets: ["cs-usuarios-api:8080"]
+          metrics_path: /metrics
+          scrape_interval: 10s
+
+        - job_name: "prometheus"
+          static_configs:
+            - targets: ["localhost:9090"]
+  
+  grafana_datasource:
+    content: |
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://cs-prometheus:9090
+          isDefault: true
+          editable: false
 
 
 
@@ -138,3 +175,65 @@ services:
     networks: 
       - csnetwork
     restart: on-failure
+
+
+  ###########################################################################
+  # PROMETHEUS
+  ###########################################################################
+  cs.prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: cs-prometheus
+    ports:
+      - "9090:9090"
+    # Usa Docker config em vez de bind-mount de arquivo (compatível com Windows/WSL)
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    networks:
+      - csnetwork
+    depends_on:
+      - cs.usuarios.api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+  ###########################################################################
+  # GRAFANA
+  ###########################################################################
+  cs.grafana:
+    image: grafana/grafana:11.1.0
+    container_name: cs-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: fiap123
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    configs:
+      - source: grafana_datasource
+        target: /etc/grafana/provisioning/datasources/prometheus.yaml
+    volumes:
+      # Apenas o dashboard (pasta inteira — sem problema no Windows)
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    networks:
+      - csnetwork
+    depends_on:
+      - cs.prometheus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

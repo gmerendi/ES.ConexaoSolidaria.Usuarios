@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s       # coleta métricas a cada 15s
+  evaluation_interval: 15s   # avalia regras de alerta a cada 15s
+
+scrape_configs:
+
+  # ── API .NET (métricas de negócio + runtime do .NET) ───────────────────────
+  - job_name: "usuarios-api"
+    static_configs:
+      - targets: ["cs-usuarios-api:8080"]
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # ── Prometheus itself ───────────────────────────────────────────────────────
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
