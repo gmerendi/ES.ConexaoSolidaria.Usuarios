@@ -7,7 +7,7 @@ using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Application.Features.Usuarios
 {
-    public class SuspenderUsuarioCommandHandler : IUseCaseHandler<SuspenderUsuarioCommand, Result<bool>>
+    public sealed class SuspenderUsuarioCommandHandler : IUseCaseHandler<SuspenderUsuarioCommand, Result<bool>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;

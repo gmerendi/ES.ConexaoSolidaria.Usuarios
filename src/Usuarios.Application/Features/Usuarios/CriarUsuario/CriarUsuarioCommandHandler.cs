@@ -8,7 +8,7 @@ using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Application.Features.Usuarios
 {
-    public class CriarUsuarioCommandHandler : IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>>
+    public sealed class CriarUsuarioCommandHandler : IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
@@ -50,7 +50,7 @@ namespace Usuarios.Application.Features.Usuarios
                     throw new DomainException("422_USER_DUPLICATED");
                 }
 
-                // 2 - Verificar se usuario já existe
+                // 2 - Verificar se cpf já existe
                 var cpfExistente = await _usuarioRepository.ObterPorCpfAsync(command.Cpf, ct);
 
                 if (cpfExistente != null)

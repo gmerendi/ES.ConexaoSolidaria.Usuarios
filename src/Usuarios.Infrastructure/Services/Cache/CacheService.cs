@@ -132,5 +132,30 @@ namespace Usuarios.Infrastructure.Services.Cache
                 _logger.LogError("Falha ao remover chave do Redis: " + ex.Message, BaseLogType.LOG, ex);
             }
         }
+
+
+        public async Task RemoveByPrefixAsync(string prefix)
+        {
+            try
+            {
+                var server = _redis.GetServer(_redis.GetEndPoints().First());
+                var keys = server.Keys(pattern: $"{prefix}*").ToArray();
+
+                if (!keys.Any())
+                {
+                    _logger.LogInformation($"Nenhuma key encontrada com prefixo: {prefix}", BaseLogType.LOG, prefix);
+                    return;
+                }
+
+                var db = _redis.GetDatabase();
+                await db.KeyDeleteAsync(keys);
+
+                _logger.LogInformation($"{keys.Length} keys removidas com prefixo: {prefix}", BaseLogType.LOG, prefix);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao remover keys com prefixo {prefix}: {ex.Message}", BaseLogType.LOG, ex);
+            }
+        }
     }
 }

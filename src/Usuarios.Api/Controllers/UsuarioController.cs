@@ -17,31 +17,31 @@ public class UsuarioController : ControllerBase
 {
     private readonly IBaseLogger<UsuarioController> _logger;
     private readonly IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>> _criarUsuarioCommandHandler;
-    private readonly IUseCaseHandler<ObterUsuarioCommand, Result<ObterUsuarioResponse>> _obterUsuarioCommandHandler;
+    private readonly IUseCaseHandler<ObterUsuarioQuery, Result<ObterUsuarioResponse>> _obterUsuarioQueryHandler;
     private readonly IUseCaseHandler<RemoverUsuarioCommand, Result<bool>> _removerUsuarioCommandHandler;
     private readonly IUseCaseHandler<SuspenderUsuarioCommand, Result<bool>> _suspenderUsuarioCommandHandler;
     private readonly IUseCaseHandler<AtivarUsuarioCommand, Result<bool>> _ativarUsuarioCommandHandler;
-    private readonly IUseCaseHandler<ModificarUsuarioCommand, Result<ModificarUsuarioResponse>> _modificarUsuarioCommandHandler;
+    private readonly IUseCaseHandler<AlterarUsuarioCommand, Result<AlterarUsuarioResponse>> _alterarUsuarioCommandHandler;
     private readonly IUseCaseHandler<AlterarPerfilParaGestorCommand, Result<bool>> _alterarPerfilParaGestorCommandHandler;
     private readonly IUseCaseHandler<AlterarPerfilParaDoadorCommand, Result<bool>> _alterarPerfilParaDoadorCommandHandler;
 
     public UsuarioController(IBaseLogger<UsuarioController> logger,
         IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>> criarUsuarioCommandHandler,
-        IUseCaseHandler<ObterUsuarioCommand, Result<ObterUsuarioResponse>> obterUsuarioCommandHandler,
+        IUseCaseHandler<ObterUsuarioQuery, Result<ObterUsuarioResponse>> obterUsuarioQueryHandler,
         IUseCaseHandler<RemoverUsuarioCommand, Result<bool>> removerUsuarioCommandHandler,
         IUseCaseHandler<SuspenderUsuarioCommand, Result<bool>> suspenderUsuarioCommandHandler,
         IUseCaseHandler<AtivarUsuarioCommand, Result<bool>> ativarUsuarioCommandHandler,
-        IUseCaseHandler<ModificarUsuarioCommand, Result<ModificarUsuarioResponse>> modificarUsuarioCommandHandler,
+        IUseCaseHandler<AlterarUsuarioCommand, Result<AlterarUsuarioResponse>> alterarUsuarioCommandHandler,
         IUseCaseHandler<AlterarPerfilParaGestorCommand, Result<bool>> alterarPerfilParaGestorCommandHandler,
         IUseCaseHandler<AlterarPerfilParaDoadorCommand, Result<bool>> alterarPerfilParaDoadorCommandHandler)
     {
         _logger = logger;
         _criarUsuarioCommandHandler = criarUsuarioCommandHandler;
-        _obterUsuarioCommandHandler = obterUsuarioCommandHandler;
+        _obterUsuarioQueryHandler = obterUsuarioQueryHandler;
         _removerUsuarioCommandHandler = removerUsuarioCommandHandler;
         _suspenderUsuarioCommandHandler = suspenderUsuarioCommandHandler;
         _ativarUsuarioCommandHandler = ativarUsuarioCommandHandler;
-        _modificarUsuarioCommandHandler = modificarUsuarioCommandHandler;
+        _alterarUsuarioCommandHandler = alterarUsuarioCommandHandler;
         _alterarPerfilParaGestorCommandHandler = alterarPerfilParaGestorCommandHandler;
         _alterarPerfilParaDoadorCommandHandler = alterarPerfilParaDoadorCommandHandler;
     }
@@ -132,7 +132,7 @@ public class UsuarioController : ControllerBase
     /// </remarks>
     /// <param name="request"></param>
     /// <returns>UsuarioDTO {Nome, E-mail, CPF, Perfil, Status}</returns>
-    /// <response code="201">Usuário cadastrado com sucesso.</response>
+    /// <response code="201">Usuário obtido com sucesso.</response>
     /// <response code="400">Dados Inválidos</response>
     /// <response code="422">Entidade não processada</response>
     /// <response code="500">Erro interno do servidor</response>
@@ -146,9 +146,9 @@ public class UsuarioController : ControllerBase
     {
         _logger.LogInformation("Iniciando busca de usuario: " + request.Email, BaseLogType.LOG, request);
 
-        var command = new ObterUsuarioCommand(request.Email);
+        var command = new ObterUsuarioQuery(request.Email);
 
-        var result = await _obterUsuarioCommandHandler.HandleAsync(command, ct);
+        var result = await _obterUsuarioQueryHandler.HandleAsync(command, ct);
 
         if (!result.IsSuccess)
         {
@@ -193,7 +193,7 @@ public class UsuarioController : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [Authorize(Roles = "GESTOR_ONG,DOADOR")]
     [HttpDelete]
-    [ProducesResponseType(typeof(ObterUsuarioResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -423,7 +423,7 @@ public class UsuarioController : ControllerBase
 
 
     /// <summary>
-    /// UC-11 - Modificar usuario
+    /// UC-11 - Alterar usuario
     /// </summary>
     /// <remarks>   
     /// 
@@ -451,22 +451,22 @@ public class UsuarioController : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [Authorize(Roles = "GESTOR_ONG,DOADOR")]
     [HttpPut("alterar")]
-    [ProducesResponseType(typeof(UsuarioDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AlterarUsuarioResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ModificarUsuario([FromQuery] ModificarUsuarioRequest request, CancellationToken ct)
+    public async Task<IActionResult> AlterarUsuario([FromQuery] AlterarUsuarioRequest request, CancellationToken ct)
     {
         var emailLogado = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
                          ?? User.FindFirst("email")?.Value;
 
-        _logger.LogInformation("Iniciando modificação de usuario: " + emailLogado, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando alteracao de usuario: " + emailLogado, BaseLogType.LOG, request);
 
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-        var command = new ModificarUsuarioCommand(request.NomeCompleto, request.Cpf);
+        var command = new AlterarUsuarioCommand(request.NomeCompleto, request.Cpf);
 
-        var result = await _modificarUsuarioCommandHandler.HandleAsync(command, ct);
+        var result = await _alterarUsuarioCommandHandler.HandleAsync(command, ct);
 
         if (!result.IsSuccess)
         {
@@ -474,7 +474,7 @@ public class UsuarioController : ControllerBase
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario modificado com sucesso: " + emailLogado, BaseLogType.LOG, result.Value);
+        _logger.LogInformation("Usuario alterado com sucesso: " + emailLogado, BaseLogType.LOG, result.Value);
         return Ok(result.Value);
     }
 }

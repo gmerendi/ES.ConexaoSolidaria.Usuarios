@@ -75,18 +75,23 @@ builder.Services.AddMetricsServices(logger);
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Infrastructure Extensions ", logCounter, logTotal);
 
 
-// ──────────────────────────────────────────────────────────────────────────────
-// ── Health Check Service
-// ──────────────────────────────────────────────────────────────────────────────
-
 var app = builder.Build();
 
-app.UseHttpsRedirection();
 
+// ──────────────────────────────────────────────────────────────────────────────
+// ── Middlewares
+// ──────────────────────────────────────────────────────────────────────────────
+logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Middlewares ", logCounter++, logTotal);
+app.UseCorrelationMiddleware();
+app.UseExceptionMiddleware();
+app.UseTokenBlacklistMiddleware();
+app.UseAuthentication();
 app.UseAuthorization();
-
-
+app.UseSwaggerMiddleware(logger);
+app.UseMetricsMiddleware();
 app.MapControllers();
+logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Middlewares ", logCounter, logTotal);
+
 
 // ──────────────────────────────────────────────────────────────────────────────
 // ── Observability
@@ -94,18 +99,6 @@ app.MapControllers();
 logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Metrics ", logCounter++, logTotal);
 app.UseMetricServer();
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Metrics ", logCounter, logTotal);
-
-
-// ──────────────────────────────────────────────────────────────────────────────
-// ── Middlewares
-// ──────────────────────────────────────────────────────────────────────────────
-logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Middlewares ", logCounter++, logTotal);
-app.UseSwaggerMiddleware(logger);
-app.UseCorrelationMiddleware();
-app.UseExceptionMiddleware();
-app.UseTokenBlacklistMiddleware();
-app.UseMetricsMiddleware();
-logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Middlewares ", logCounter, logTotal);
 
 
 // ──────────────────────────────────────────────────────────────────────────────

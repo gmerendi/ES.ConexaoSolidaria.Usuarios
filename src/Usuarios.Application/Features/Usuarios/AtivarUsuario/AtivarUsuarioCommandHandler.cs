@@ -7,17 +7,17 @@ using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Application.Features.Usuarios
 {
-    public class AtivarUsuarioCommandHandler : IUseCaseHandler<AtivarUsuarioCommand, Result<bool>>
+    public sealed class AtivarUsuarioCommandHandler : IUseCaseHandler<AtivarUsuarioCommand, Result<bool>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
-        private readonly IBaseLogger<ObterUsuarioCommandHandler> _logger;
+        private readonly IBaseLogger<AtivarUsuarioCommandHandler> _logger;
         private readonly ICacheService _cacheService;
         private readonly IMessageService _messageService;
         private readonly IUsuarioDomainService _usuarioDomainService;
 
         public AtivarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<ObterUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
+            IBaseLogger<AtivarUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
             IUsuarioDomainService usuarioDomainService)
         {
             _usuarioRepository = usuarioRepository;

@@ -1,6 +1,6 @@
 ﻿namespace Usuarios.Application.Features.Usuarios
 {
-    public record ModificarUsuarioResponse(
+    public record AlterarUsuarioResponse(
         Guid Guid,
         string NomeCompleto,
         string Cpf,
