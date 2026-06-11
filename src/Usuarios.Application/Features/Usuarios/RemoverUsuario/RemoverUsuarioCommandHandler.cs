@@ -7,7 +7,7 @@ using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Application.Features.Usuarios
 {
-    public class RemoverUsuarioCommandHandler : IUseCaseHandler<RemoverUsuarioCommand, Result<bool>>
+    public sealed class RemoverUsuarioCommandHandler : IUseCaseHandler<RemoverUsuarioCommand, Result<bool>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;

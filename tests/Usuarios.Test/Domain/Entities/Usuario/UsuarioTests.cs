@@ -76,7 +76,7 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("NAME_REQUIRED");
+           .Which.ErrorCode.Should().Be("400_NAME_REQUIRED");
     }
 
     [Theory]
@@ -94,7 +94,7 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("NAME_LENGTH_INVALID");
+           .Which.ErrorCode.Should().Be("400_NAME_LENGTH_INVALID");
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("NAME_LENGTH_INVALID");
+           .Which.ErrorCode.Should().Be("400_NAME_LENGTH_INVALID");
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("EMAIL_REQUIRED");
+           .Which.ErrorCode.Should().Be("400_EMAIL_REQUIRED");
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("CPF_REQUIRED");
+           .Which.ErrorCode.Should().Be("400_CPF_REQUIRED");
     }
 
     [Theory]
@@ -160,7 +160,7 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("REQUESTER_REQUIRED");
+           .Which.ErrorCode.Should().Be("400_REQUESTER_REQUIRED");
     }
 
     // -------------------------------------------------------------------------
@@ -285,7 +285,7 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("REQUESTER_REQUIRED");
+           .Which.ErrorCode.Should().Be("400_REQUESTER_REQUIRED");
     }
 
     [Theory]
@@ -302,6 +302,6 @@ public class UsuarioTests
 
         // Assert
         act.Should().Throw<DomainException>()
-           .Which.ErrorCode.Should().Be("REQUESTER_REQUIRED");
+           .Which.ErrorCode.Should().Be("400_REQUESTER_REQUIRED");
     }
 }

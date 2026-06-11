@@ -21,10 +21,12 @@ public class CriarUsuarioCommandHandlerTests
     private readonly Mock<IUsuarioDomainService> _domainServiceMock = new();
     private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly Mock<ICacheService> _cacheServiceMock = new();
+    private readonly Mock<IMetricsService> _metricsServiceMock = new();
 
     private CriarUsuarioCommandHandler CriarHandler() =>
         new(_repositoryMock.Object, _userContextMock.Object, _loggerMock.Object,
-            _domainServiceMock.Object, _messageServiceMock.Object, _cacheServiceMock.Object);
+            _domainServiceMock.Object, _messageServiceMock.Object, _cacheServiceMock.Object,
+            _metricsServiceMock.Object);
 
     private static CriarUsuarioCommand ComandoValido(
         string nome = "João da Silva Santos",

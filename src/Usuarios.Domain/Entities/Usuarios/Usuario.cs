@@ -6,7 +6,7 @@ using Usuarios.Domain.Shared.Helpers;
 
 namespace Usuarios.Domain.Entities.Usuarios
 {
-    public class Usuario : EntityBase
+    public sealed class Usuario : EntityBase
     {
         public string NomeCompleto { get; private set; } = String.Empty;
         public Perfil Perfil { get; private set; } = Perfil.DOADOR;
@@ -105,30 +105,30 @@ namespace Usuarios.Domain.Entities.Usuarios
         // -----------------------------------------------------------------------------
         private static void NomeAssertions(string nome)
         {
-            AssertionConcern.AssertArgumentNotEmpty(nome, "NAME_REQUIRED");
-            AssertionConcern.AssertArgumentLength(nome, 5, 200, "NAME_LENGTH_INVALID");
+            AssertionConcern.AssertArgumentNotEmpty(nome, "400_NAME_REQUIRED");
+            AssertionConcern.AssertArgumentLength(nome, 5, 200, "400_NAME_LENGTH_INVALID");
         }
 
         private static void SenhaAssertions(string senha)
         {
-            AssertionConcern.AssertArgumentNotEmpty(senha, "PASSWORD_REQUIRED");
+            AssertionConcern.AssertArgumentNotEmpty(senha, "400_PASSWORD_REQUIRED");
         }
 
         private static void SolicitanteAssertions(string solicitanteEmail)
         {
-            AssertionConcern.AssertArgumentNotEmpty(solicitanteEmail, "REQUESTER_REQUIRED");//Aqui já nao testa se o solicitante existe
+            AssertionConcern.AssertArgumentNotEmpty(solicitanteEmail, "400_REQUESTER_REQUIRED");//Aqui já nao testa se o solicitante existe
         }
 
 
         private static void EmailAssertions(Email email)
         {
-            AssertionConcern.AssertArgumentNotNull(email, "EMAIL_REQUIRED");
+            AssertionConcern.AssertArgumentNotNull(email, "400_EMAIL_REQUIRED");
         }
 
 
         private static void CpfAssertions(Cpf cpf)
         {
-            AssertionConcern.AssertArgumentNotNull(cpf, "CPF_REQUIRED");
+            AssertionConcern.AssertArgumentNotNull(cpf, "400_CPF_REQUIRED");
         }
 
 
@@ -136,7 +136,7 @@ namespace Usuarios.Domain.Entities.Usuarios
         {
             if (!Enum.IsDefined(typeof(Perfil), perfil))
             {
-                throw new DomainException("PROFILE_INVALID");
+                throw new DomainException("400_PROFILE_INVALID");
             }
         }
 
@@ -144,7 +144,7 @@ namespace Usuarios.Domain.Entities.Usuarios
         {
             if (!Enum.IsDefined(typeof(EntityStatus), statusNovo))
             {
-                throw new DomainException("STATUS_INVALID");
+                throw new DomainException("400_STATUS_INVALID");
             } 
         }
     }

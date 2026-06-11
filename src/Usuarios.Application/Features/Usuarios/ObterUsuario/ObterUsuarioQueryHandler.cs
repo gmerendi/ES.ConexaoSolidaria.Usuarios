@@ -8,15 +8,15 @@ using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Application.Features.Usuarios
 {
-    public class ObterUsuarioCommandHandler : IUseCaseHandler<ObterUsuarioCommand, Result<ObterUsuarioResponse>>
+    public sealed class ObterUsuarioQueryHandler : IUseCaseHandler<ObterUsuarioQuery, Result<ObterUsuarioResponse>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
-        private readonly IBaseLogger<ObterUsuarioCommandHandler> _logger;
+        private readonly IBaseLogger<ObterUsuarioQueryHandler> _logger;
         private readonly ICacheService _cacheService;
 
-        public ObterUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<ObterUsuarioCommandHandler> logger, ICacheService cacheService)
+        public ObterUsuarioQueryHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
+            IBaseLogger<ObterUsuarioQueryHandler> logger, ICacheService cacheService)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
@@ -24,7 +24,7 @@ namespace Usuarios.Application.Features.Usuarios
             _cacheService = cacheService;
         }
 
-        public async Task<Result<ObterUsuarioResponse>> HandleAsync(ObterUsuarioCommand command, CancellationToken ct)
+        public async Task<Result<ObterUsuarioResponse>> HandleAsync(ObterUsuarioQuery command, CancellationToken ct)
         {
             // 1 - Verificar se o command não é nulo 
             if (command == null)

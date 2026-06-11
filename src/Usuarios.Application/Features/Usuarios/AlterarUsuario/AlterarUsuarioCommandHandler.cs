@@ -8,17 +8,17 @@ using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Application.Features.Usuarios
 {
-    public class ModificarUsuarioCommandHandler : IUseCaseHandler<ModificarUsuarioCommand, Result<ModificarUsuarioResponse>>
+    public sealed class AlterarUsuarioCommandHandler : IUseCaseHandler<AlterarUsuarioCommand, Result<AlterarUsuarioResponse>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
-        private readonly IBaseLogger<ModificarUsuarioCommandHandler> _logger;
+        private readonly IBaseLogger<AlterarUsuarioCommandHandler> _logger;
         private readonly ICacheService _cacheService;
         private readonly IMessageService _messageService;
         private readonly IUsuarioDomainService _usuarioDomainService;
 
-        public ModificarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<ModificarUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
+        public AlterarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
+            IBaseLogger<AlterarUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
             IUsuarioDomainService usuarioDomainService)
         {
             _usuarioRepository = usuarioRepository;
@@ -29,7 +29,7 @@ namespace Usuarios.Application.Features.Usuarios
             _usuarioDomainService = usuarioDomainService;
         }
 
-        public async Task<Result<ModificarUsuarioResponse>> HandleAsync(ModificarUsuarioCommand command, CancellationToken ct)
+        public async Task<Result<AlterarUsuarioResponse>> HandleAsync(AlterarUsuarioCommand command, CancellationToken ct)
         {
             // 1 - Verificar se o command não é nulo 
             if (command == null)
@@ -39,12 +39,11 @@ namespace Usuarios.Application.Features.Usuarios
 
             try
             {
-                var solicitante = _userContext.GetUser() ?? null;
-                _logger.LogInformation("Tentativa de modificacao de usuario iniciada para o email: " + solicitante.Email, BaseLogType.LOG, command);
-
                 //2 - Buscar solicitante. O usuario modifica somente a si mesmo          
+                var solicitante = _userContext.GetUser() ?? null;
                 var usuarioSolicitante = await _usuarioRepository.ObterPorEmailAsync(solicitante.Email);
                 var usuario = await _usuarioRepository.ObterPorEmailAsync(solicitante.Email);
+                _logger.LogInformation("Tentativa de alteracao de usuario iniciada para o email: " + usuario.Email.Endereco, BaseLogType.LOG, command);
 
                 if (usuario == null)
                 {
@@ -67,7 +66,7 @@ namespace Usuarios.Application.Features.Usuarios
                 await _cacheService.RemoveAsync(cacheKey);
 
                 UsuarioDTO usuarioResponse = UsuarioDTO.FromEntity(usuario);
-                var response = new ModificarUsuarioResponse
+                var response = new AlterarUsuarioResponse
                     (
                         usuarioResponse.Guid,
                         usuarioResponse.NomeCompleto,
@@ -78,15 +77,15 @@ namespace Usuarios.Application.Features.Usuarios
                     );
                
 
-                return Result<ModificarUsuarioResponse>.Success(response);
+                return Result<AlterarUsuarioResponse>.Success(response);
             }
             catch (DomainException)
             {
                 throw; 
             }
             catch (Exception ex) {  
-                _logger.LogError("Erro ao remover usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
-                throw new ApplicationException("Ocorreu um erro ao remover  o usuário. " + ex.Message);
+                _logger.LogError("Erro ao alterar usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+                throw new ApplicationException("Ocorreu um erro ao alterar o usuário. " + ex.Message);
             }
         }   
     }

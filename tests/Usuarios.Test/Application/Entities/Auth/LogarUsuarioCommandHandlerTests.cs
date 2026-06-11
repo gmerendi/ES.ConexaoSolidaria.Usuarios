@@ -21,10 +21,12 @@ public class LogarUsuarioCommandHandlerTests
     private readonly Mock<ITokenService> _tokenServiceMock = new();
     private readonly Mock<ICryptoService> _cryptoServiceMock = new();
     private readonly Mock<ICacheService> _cacheServiceMock = new();
+    private readonly Mock<IMetricsService> _metricsServiceMock = new();
 
     private LogarUsuarioCommandHandler CriarHandler() =>
         new(_repositoryMock.Object, _loggerMock.Object,
-            _tokenServiceMock.Object, _cryptoServiceMock.Object, _cacheServiceMock.Object);
+            _tokenServiceMock.Object, _cryptoServiceMock.Object, _cacheServiceMock.Object,
+            _metricsServiceMock.Object);
 
     private static LogarUsuarioCommand ComandoValido(
         string email = "joao@email.com",

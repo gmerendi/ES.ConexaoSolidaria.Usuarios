@@ -7,7 +7,7 @@ using Usuarios.Domain.Shared.Primitives;
 
 namespace Usuarios.Application.Features.Usuarios
 {
-    public class AlterarPerfilParaGestorCommandHandler : IUseCaseHandler<AlterarPerfilParaGestorCommand, Result<bool>>
+    public sealed class AlterarPerfilParaGestorCommandHandler : IUseCaseHandler<AlterarPerfilParaGestorCommand, Result<bool>>
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
