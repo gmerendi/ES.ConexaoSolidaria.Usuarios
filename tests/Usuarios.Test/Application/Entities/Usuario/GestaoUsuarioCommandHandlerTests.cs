@@ -100,7 +100,7 @@ public class AtivarUsuarioCommandHandlerTests
 {
     private readonly Mock<IUsuarioRepository> _repositoryMock = new();
     private readonly Mock<IUserContext> _userContextMock = new();
-    private readonly Mock<IBaseLogger<ObterUsuarioCommandHandler>> _loggerMock = new();
+    private readonly Mock<IBaseLogger<AtivarUsuarioCommandHandler>> _loggerMock = new();
     private readonly Mock<ICacheService> _cacheServiceMock = new();
     private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly Mock<IUsuarioDomainService> _domainServiceMock = new();

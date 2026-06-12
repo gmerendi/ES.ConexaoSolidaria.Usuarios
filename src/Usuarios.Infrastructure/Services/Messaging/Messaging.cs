@@ -1,6 +1,7 @@
 ﻿using CS.Domain.Events;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
+using Usuarios.Domain.Entities.Usuarios;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Interfaces;
 
@@ -40,7 +41,7 @@ namespace Usuarios.Infrastructure.Services.Messaging
 
             try
             {
-                var eventMessage = new UserCreatedEvent(guidUser, nome, email, cpf, _correlationIdGenerator.Get());
+                var eventMessage = new UserCreatedEvent(guidUser, nome, email, Cpf.Anonymize(cpf), _correlationIdGenerator.Get());
                 await _publish.Publish(eventMessage, ct);
                 _logger.LogInformation("Evento UserCreatedEvent publicado para o Broker. Email: " + email, BaseLogType.EVENT, eventMessage);
             }
@@ -58,7 +59,7 @@ namespace Usuarios.Infrastructure.Services.Messaging
 
             try
             {
-                var eventMessage = new UserRemovedEvent(guidUser, nome, email, cpf, _correlationIdGenerator.Get());
+                var eventMessage = new UserRemovedEvent(guidUser, nome, email, Cpf.Anonymize(cpf), _correlationIdGenerator.Get());
                 await _publish.Publish(eventMessage, ct);
                 _logger.LogInformation("Evento UserRemovedEvent publicado para o Broker. Email: " + email, BaseLogType.EVENT, eventMessage);
             }
@@ -76,7 +77,7 @@ namespace Usuarios.Infrastructure.Services.Messaging
 
             try
             {
-                var eventMessage = new UserResetPasswordEvent(guidUser, nome, email, cpf, _correlationIdGenerator.Get());
+                var eventMessage = new UserResetPasswordEvent(guidUser, nome, email, Cpf.Anonymize(cpf), _correlationIdGenerator.Get());
                 await _publish.Publish(eventMessage, ct);
                 _logger.LogInformation("Evento UserResetPasswordEvent publicado para o Broker. Email: " + email, BaseLogType.EVENT, eventMessage);
             }
@@ -94,7 +95,7 @@ namespace Usuarios.Infrastructure.Services.Messaging
 
             try
             {
-                var eventMessage = new UserSuspendedEvent(guidUser, nome, email, cpf, _correlationIdGenerator.Get());
+                var eventMessage = new UserSuspendedEvent(guidUser, nome, email, Cpf.Anonymize(cpf), _correlationIdGenerator.Get());
                 await _publish.Publish(eventMessage, ct);
                 _logger.LogInformation("Evento UserSuspendedEvent publicado para o Broker. Email: " + email, BaseLogType.EVENT, eventMessage);
             }
@@ -112,7 +113,7 @@ namespace Usuarios.Infrastructure.Services.Messaging
 
             try
             {
-                var eventMessage = new UserActivatedEvent(guidUser, nome, email, cpf, _correlationIdGenerator.Get());
+                var eventMessage = new UserActivatedEvent(guidUser, nome, email, Cpf.Anonymize(cpf), _correlationIdGenerator.Get());
                 await _publish.Publish(eventMessage, ct);
                 _logger.LogInformation("Evento UserActivatedEvent publicado para o Broker. Email: " + email, BaseLogType.EVENT, eventMessage);
             }
