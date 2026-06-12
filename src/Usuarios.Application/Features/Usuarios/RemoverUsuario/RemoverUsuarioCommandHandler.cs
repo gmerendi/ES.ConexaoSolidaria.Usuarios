@@ -56,6 +56,7 @@ namespace Usuarios.Application.Features.Usuarios
                 {
                     throw new DomainException("400_USER_NOT_FOUND");
                 }
+                await _usuarioRepository.RemoverAsync(usuario.Guid, ct);
 
                 // 4 - Remove usuario do cache
                 var cacheKey = $"usuario:{command.Email}";
