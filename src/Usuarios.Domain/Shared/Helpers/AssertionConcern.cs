@@ -65,5 +65,22 @@ namespace Usuarios.Domain.Shared.Helpers
                 throw new DomainException(errorCode);
             }
         }
+
+
+        /// <summary>
+        /// Checa se o valor decimal é maior que 0
+        /// </summary>
+        /// <param name="value">Valor a ser validado</param>
+        /// <param name="minimum">Valor mínimo permitido</param>
+        /// <param name="maximum">Valor máximo permitido</param>
+        /// <param name="errorCode">Código do erro cadastrado no Resource</param>
+        /// <exception cref="DomainException">Lançada se o valor for maior que 0</exception>
+        public static void AssertArgumentNotLesserOrEqualZero(decimal value, string errorCode)
+        {
+            if (value <= 0)
+            {
+                throw new DomainException(errorCode);
+            }
+        }
     }
 }
