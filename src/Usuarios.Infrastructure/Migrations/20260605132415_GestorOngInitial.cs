@@ -23,7 +23,7 @@ namespace Infrastructure.Migrations
                     'GESTOR_ONG',
                     '{passwordHash}', 
                     'admin@conexao-solidaria.com.br', 
-                    '00000000000', 
+                    '25688069074', 
                     NOW(),
                     'Sistema', 
                     NULL,   

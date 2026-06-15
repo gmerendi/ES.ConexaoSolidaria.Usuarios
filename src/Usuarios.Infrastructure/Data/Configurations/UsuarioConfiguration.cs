@@ -89,6 +89,7 @@ namespace Usuarios.Infrastructure.Data.Configurations
                     .HasMaxLength(11)
                     .HasColumnType("varchar(11)");
 
+
                 cpfBuilder.HasIndex(c => c.Numero)
                     .HasDatabaseName("ix_usuarios_cpf")
                     .IsUnique();

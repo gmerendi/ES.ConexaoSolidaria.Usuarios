@@ -4,21 +4,19 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Usuarios.Domain.Entities.Usuarios;
-using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Interfaces;
-using Usuarios.Domain.Shared.Primitives;
-using Usuarios.Infrastructure.Services.Cache;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Usuarios.Infrastructure.Services.Security;
 
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
+    private readonly ICryptoService _cryptoService;
 
-    public TokenService(IConfiguration configuration)
+    public TokenService(IConfiguration configuration, ICryptoService cryptoService)
     {
         _configuration = configuration;
+        _cryptoService = cryptoService;
     }
 
     public (string Token, DateTime DataExpiracao) GetToken(Usuario usuarioReal)
@@ -30,6 +28,7 @@ public class TokenService : ITokenService
         var issuer = _configuration["Jwt:Issuer"] ?? "";
         var audience = _configuration["Jwt:Audience"] ?? "";
         var horasExpiracao = double.Parse(_configuration["Jwt:ExpirationHours"] ?? "2");
+        var encriptedCpf = _cryptoService.Encrypt(usuario.Cpf.Numero);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(chaveSecreta);
@@ -41,10 +40,10 @@ public class TokenService : ITokenService
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Name, usuario.Guid.ToString()),
+                new Claim(ClaimTypes.Name, usuario.NomeCompleto),
                 new Claim(ClaimTypes.Email, usuario.Email.Endereco),
                 new Claim(ClaimTypes.Role, usuario.Perfil.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, Cpf.Anonymize(usuario.Cpf.Numero)),
+                new Claim(ClaimTypes.SerialNumber, encriptedCpf),
             }),
 
             Expires = dataExpiracao,
