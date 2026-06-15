@@ -161,6 +161,7 @@ services:
       Jwt__Issuer: "ES-ConexaoSolidariaIssuer"
       Jwt__Audience: "ES-ConexaoSolidariaClient"
       Jwt__ExpirationHours: "3"
+      AES__KEY: "W36tuZgAwZTkvGebRMEQJjGtbLNJRK6unGj1Ow5Rnm8="
 
       #Logs
       CustomLogging__LogInfo: "True"

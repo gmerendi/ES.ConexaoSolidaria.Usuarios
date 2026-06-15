@@ -30,7 +30,7 @@ namespace Usuarios.Infrastructure.Services.UserContext
 
             var nomeCompleto = user.FindFirst(ClaimTypes.Name)?.Value ?? user.FindFirst("name")?.Value ?? "";
 
-            var cpf = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user.FindFirst("cpf")?.Value ?? "";
+            var cpf = user.FindFirst(ClaimTypes.SerialNumber)?.Value ?? user.FindFirst("cpf")?.Value ?? "";
 
             var emailStr = user.FindFirst(ClaimTypes.Email)?.Value ?? user.FindFirst("email")?.Value ?? "";
 
