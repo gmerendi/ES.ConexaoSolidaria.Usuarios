@@ -8,9 +8,6 @@ namespace Usuarios.Infrastructure.Extensions
     {
         public static IServiceCollection AddDomainServices(this IServiceCollection services, ILogger logger)
         {
-            // ApplicationServices
-            
-
             services.AddScoped <IUsuarioDomainService, UsuarioDomainService > ();
             logger.LogInformation(" ***** Domain services inicializados.");
 

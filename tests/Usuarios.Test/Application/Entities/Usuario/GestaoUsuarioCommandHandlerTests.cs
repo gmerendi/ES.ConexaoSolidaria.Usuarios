@@ -44,8 +44,6 @@ public class SuspenderUsuarioCommandHandlerTests
         _repositoryMock.Setup(r => r.ObterPorEmailAsync("alvo@email.com", It.IsAny<CancellationToken>())).ReturnsAsync(alvo);
         _repositoryMock.Setup(r => r.AlterarAsync(It.IsAny<Usuario>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _cacheServiceMock.Setup(c => c.RemoveAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
-        _messageServiceMock.Setup(m => m.SendUserSuspendedEventMessage(It.IsAny<Guid>(), It.IsAny<string>(),
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _domainServiceMock.Setup(d => d.PodeAlterarPerfilEStatus(gestor, alvo));
 
         var handler = CriarHandler();
@@ -101,13 +99,12 @@ public class AtivarUsuarioCommandHandlerTests
     private readonly Mock<IUsuarioRepository> _repositoryMock = new();
     private readonly Mock<IUserContext> _userContextMock = new();
     private readonly Mock<IBaseLogger<AtivarUsuarioCommandHandler>> _loggerMock = new();
-    private readonly Mock<ICacheService> _cacheServiceMock = new();
     private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly Mock<IUsuarioDomainService> _domainServiceMock = new();
 
     private AtivarUsuarioCommandHandler CriarHandler() =>
         new(_repositoryMock.Object, _userContextMock.Object, _loggerMock.Object,
-            _cacheServiceMock.Object, _messageServiceMock.Object, _domainServiceMock.Object);
+            _messageServiceMock.Object, _domainServiceMock.Object);
 
     [Fact]
     public async Task HandleAsync_DeveRetornarSucesso_QuandoGestorAtivaUsuarioSuspenso()
@@ -122,8 +119,6 @@ public class AtivarUsuarioCommandHandlerTests
         _repositoryMock.Setup(r => r.ObterPorEmailAsync(gestorContext.Email, It.IsAny<CancellationToken>())).ReturnsAsync(gestor);
         _repositoryMock.Setup(r => r.ObterPorEmailAsync("alvo@email.com", It.IsAny<CancellationToken>())).ReturnsAsync(alvo);
         _repositoryMock.Setup(r => r.AlterarAsync(It.IsAny<Usuario>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _messageServiceMock.Setup(m => m.SendUserActivatedEventMessage(It.IsAny<Guid>(), It.IsAny<string>(),
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _domainServiceMock.Setup(d => d.PodeAlterarPerfilEStatus(gestor, alvo));
 
         var handler = CriarHandler();
@@ -179,12 +174,11 @@ public class AlterarPerfilParaGestorCommandHandlerTests
     private readonly Mock<IUserContext> _userContextMock = new();
     private readonly Mock<IBaseLogger<AlterarPerfilParaGestorCommandHandler>> _loggerMock = new();
     private readonly Mock<ICacheService> _cacheServiceMock = new();
-    private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly Mock<IUsuarioDomainService> _domainServiceMock = new();
 
     private AlterarPerfilParaGestorCommandHandler CriarHandler() =>
         new(_repositoryMock.Object, _userContextMock.Object, _loggerMock.Object,
-            _cacheServiceMock.Object, _messageServiceMock.Object, _domainServiceMock.Object);
+            _cacheServiceMock.Object, _domainServiceMock.Object);
 
     [Fact]
     public async Task HandleAsync_DeveRetornarSucesso_QuandoGestorPromoveDoador()

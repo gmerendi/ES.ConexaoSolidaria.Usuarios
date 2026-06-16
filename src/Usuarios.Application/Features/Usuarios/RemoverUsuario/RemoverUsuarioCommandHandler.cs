@@ -62,9 +62,6 @@ namespace Usuarios.Application.Features.Usuarios
                 var cacheKey = $"usuario:{command.Email}";
                 await _cacheService.RemoveAsync(cacheKey);
 
-                // 5 - Envia evento de remoção de usuário
-                await _messageService.SendUserRemovedEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
-
                 // ── Métrica de negócio ─────────────────────────────────────────
                 _metrics.IncrementarUsuarioRemovido();
 

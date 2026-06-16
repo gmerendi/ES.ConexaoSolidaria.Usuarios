@@ -66,9 +66,6 @@ namespace Usuarios.Application.Features.Usuarios
                 var cacheKey = $"usuario:{command.Email}";
                 await _cacheService.RemoveAsync(cacheKey);
 
-                // 5 - Envia evento de suspensao de usuário
-                await _messageService.SendUserSuspendedEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
-
                 return Result<bool>.Success(true);
             }
             catch (DomainException)

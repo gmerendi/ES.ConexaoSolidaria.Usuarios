@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Usuarios.Domain.Enums;
 
 namespace Usuarios.Domain.Entities.Usuarios.DTO
 {

@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Usuarios.Domain.Entities.Usuarios;
 using Usuarios.Infrastructure.Data;
 
 namespace Usuarios.Infrastructure.Extensions

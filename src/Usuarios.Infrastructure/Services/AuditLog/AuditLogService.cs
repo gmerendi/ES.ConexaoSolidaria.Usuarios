@@ -1,6 +1,5 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Interfaces;
