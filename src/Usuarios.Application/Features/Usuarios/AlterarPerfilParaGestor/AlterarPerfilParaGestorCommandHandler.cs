@@ -13,18 +13,15 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IUserContext _userContext;
         private readonly IBaseLogger<AlterarPerfilParaGestorCommandHandler> _logger;
         private readonly ICacheService _cacheService;
-        private readonly IMessageService _messageService;
         private readonly IUsuarioDomainService _usuarioDomainService;
 
         public AlterarPerfilParaGestorCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<AlterarPerfilParaGestorCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
-            IUsuarioDomainService usuarioDomainService)
+            IBaseLogger<AlterarPerfilParaGestorCommandHandler> logger, ICacheService cacheService, IUsuarioDomainService usuarioDomainService)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
             _cacheService = cacheService;
-            _messageService = messageService;
             _usuarioDomainService = usuarioDomainService;
         }
 

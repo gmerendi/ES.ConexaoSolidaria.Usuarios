@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Usuarios.Api.Controllers.DTOs;
 using Usuarios.Application.Features.Usuarios;
 using Usuarios.Application.Shared;
-using Usuarios.Domain.Entities.Usuarios.DTO;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Interfaces;
 using Usuarios.Domain.Shared.Primitives;
@@ -427,7 +426,8 @@ public class UsuarioController : ControllerBase
     /// </summary>
     /// <remarks>   
     /// 
-    /// Atualiza o Nome Completo e Cpf para o Usuario
+    /// Atualiza o Nome Completo e Cpf do usuario logado.
+    /// Somente o prorpio usuario atualiza seus dados.
     /// 
     /// **Esse endpoint requer autenticacao**
     /// 

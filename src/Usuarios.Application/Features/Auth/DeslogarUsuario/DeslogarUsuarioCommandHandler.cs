@@ -9,19 +9,15 @@ namespace Usuarios.Application.Features.Auth
 {
     public class DeslogarUsuarioCommandHandler : IUseCaseHandler<DeslogarUsuarioCommand, Result<bool>>
     {
-        private readonly IUsuarioRepository _usuarioRepository;
         private readonly IBaseLogger<DeslogarUsuarioCommandHandler> _logger;
         private readonly ITokenService _tokenService;
         private readonly ICacheService _cacheService;
         private readonly IUserContext _userContext;
         private readonly IMetricsService _metrics;
 
-        public DeslogarUsuarioCommandHandler(IUsuarioRepository usuarioRepository,
-            IBaseLogger<DeslogarUsuarioCommandHandler> logger,
-            ITokenService tokenService, ICacheService cacheService,
-            IUserContext userContext, IMetricsService metrics)
+        public DeslogarUsuarioCommandHandler(IBaseLogger<DeslogarUsuarioCommandHandler> logger, ITokenService tokenService, 
+            ICacheService cacheService,IUserContext userContext, IMetricsService metrics)
         {
-            _usuarioRepository = usuarioRepository;
             _logger = logger;
             _tokenService = tokenService;
             _cacheService = cacheService;

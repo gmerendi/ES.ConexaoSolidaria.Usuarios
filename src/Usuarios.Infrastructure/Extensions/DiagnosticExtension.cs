@@ -34,7 +34,7 @@ namespace Usuarios.Infrastructure.Services.Extensions
 
                     // Queues
                     "USER_CREATED_QUEUE",
-                    "DONATION_INTENT_QUEUE",
+                    "DONATION_CREATED_QUEUE",
                     "DONATION_PERFORMED_QUEUE",
                     "NEW_CAMPAIGN_QUEUE", 
                     

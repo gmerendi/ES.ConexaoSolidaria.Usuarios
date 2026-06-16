@@ -12,18 +12,15 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
         private readonly IBaseLogger<AtivarUsuarioCommandHandler> _logger;
-        private readonly ICacheService _cacheService;
         private readonly IMessageService _messageService;
         private readonly IUsuarioDomainService _usuarioDomainService;
 
         public AtivarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<AtivarUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
-            IUsuarioDomainService usuarioDomainService)
+            IBaseLogger<AtivarUsuarioCommandHandler> logger, IMessageService messageService, IUsuarioDomainService usuarioDomainService)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
-            _cacheService = cacheService;
             _messageService = messageService;
             _usuarioDomainService = usuarioDomainService;
         }

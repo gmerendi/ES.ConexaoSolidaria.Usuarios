@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Prometheus;
 using Usuarios.Domain.Shared.Interfaces;
 using Usuarios.Infrastructure.Services.Metrics;
 

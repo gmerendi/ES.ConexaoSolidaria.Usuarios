@@ -1,4 +1,4 @@
-using Usuarios.Domain.Shared.Resources; // Garante o acesso ao seu ErrorMessages
+using Usuarios.Domain.Shared.Resources; 
 
 namespace Usuarios.Domain.Shared.Primitives
 {

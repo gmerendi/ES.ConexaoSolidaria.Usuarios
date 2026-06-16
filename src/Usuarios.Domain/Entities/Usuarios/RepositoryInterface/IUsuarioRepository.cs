@@ -1,5 +1,4 @@
-﻿using Usuarios.Domain.Entities.Usuarios;
-using Usurios.Domain.Shared.Interfaces;
+﻿using Usurios.Domain.Shared.Interfaces;
 
 namespace Usuarios.Domain.Entities.Usuarios
 {

@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Usuarios.Api.Controllers.DTOs;
 using Usuarios.Application.Features.Auth;
-using Usuarios.Application.Features.Usuarios;
 using Usuarios.Application.Shared;
 using Usuarios.Domain.Enums;
 using Usuarios.Domain.Shared.Interfaces;
