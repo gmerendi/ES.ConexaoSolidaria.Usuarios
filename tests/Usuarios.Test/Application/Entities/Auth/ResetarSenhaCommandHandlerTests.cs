@@ -53,8 +53,6 @@ public class ResetarSenhaCommandHandlerTests
         _tokenServiceMock.Setup(t => t.GetToken(usuario)).Returns(("novo-token-jwt", DateTime.UtcNow.AddHours(1)));
         _repositoryMock.Setup(r => r.AlterarAsync(It.IsAny<Usuario>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _cacheServiceMock.Setup(c => c.SetBlacklistAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _messageServiceMock.Setup(m => m.SendUserResetPasswordEventMessage(It.IsAny<Guid>(), It.IsAny<string>(),
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         var handler = CriarHandler();
 
@@ -82,8 +80,6 @@ public class ResetarSenhaCommandHandlerTests
         _tokenServiceMock.Setup(t => t.GetToken(usuario)).Returns(("novo-token", DateTime.UtcNow.AddHours(1)));
         _repositoryMock.Setup(r => r.AlterarAsync(It.IsAny<Usuario>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _cacheServiceMock.Setup(c => c.SetBlacklistAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _messageServiceMock.Setup(m => m.SendUserResetPasswordEventMessage(It.IsAny<Guid>(), It.IsAny<string>(),
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         var handler = CriarHandler();
 
