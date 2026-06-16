@@ -59,9 +59,6 @@ namespace Usuarios.Application.Features.Usuarios
                 usuario.Ativar(solicitante.Email);
                 await _usuarioRepository.AlterarAsync(usuario);
 
-                // 5 - Envia evento de ativação de usuário
-                await _messageService.SendUserActivatedEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
-
                 return Result<bool>.Success(true);
             }
             catch (DomainException)

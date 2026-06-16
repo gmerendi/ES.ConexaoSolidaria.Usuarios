@@ -78,9 +78,6 @@ namespace Usuarios.Application.Features.Auth
                 // 5 - Cria token novo
                 (string newToken, DateTime expiracao) = _tokenService.GetToken(usuario);
 
-                // 6 - Publica evento de alteração de senha
-                await _messageService.SendUserResetPasswordEventMessage(usuario.Guid, usuario.NomeCompleto, usuario.Email.Endereco, usuario.Cpf.Numero, ct);
-
 
                 return Result<string>.Success(newToken);
             }
