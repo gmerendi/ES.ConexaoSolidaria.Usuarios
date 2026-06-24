@@ -107,7 +107,7 @@ logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Metrics ", 
 // ── Migrations
 // ──────────────────────────────────────────────────────────────────────────────
 logger.LogInformation(" ***** ({0}/{1}) - Inicio inicialização de Migrations ", logCounter, logTotal);
-app.ApplyMigrations(logger);
+app.ApplyMigrations(builder.Configuration, logger);
 logger.LogInformation(" ***** ({0}/{1}) - Termino inicialização de Migrations ", logCounter++, logTotal);
 
 
