@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Amazon.DynamoDBv2;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,7 +10,7 @@ namespace Usuarios.Infrastructure.Extensions
 {
     public static class MigrationExtensions
     {
-        public static void ApplyMigrations(this IHost host, ILogger logger)
+        public static void ApplyMigrations(this IHost host, IConfiguration configuration, ILogger logger)
         {
             logger.LogInformation(" ***** Migrations - Application - Inicializado.");
             using (var scope = host.Services.CreateScope())
@@ -27,17 +29,20 @@ namespace Usuarios.Infrastructure.Extensions
                     logger.LogError(ex, " ***** ⚠️ - Erro ao aplicar as migrations - Application");
                 }
 
-                // 2. Migration para DynamoDB
-                try
+                var applicationType = Environment.GetEnvironmentVariable("Application__Type");
+                if (applicationType == "LOCAL")
                 {
-                    Infrastructure.Migrations.DynamoDbConfiguration.DynamoDbMigration(services).GetAwaiter().GetResult();
-                    logger.LogInformation(" ***** ✅ - Migrations aplicadas com sucesso - DynamoDB");
+                    // 2. Migration para DynamoDB
+                    try
+                    {
+                        Infrastructure.Migrations.DynamoDbConfiguration.DynamoDbMigration(services).GetAwaiter().GetResult();
+                        logger.LogInformation(" ***** ✅ - Migrations aplicadas com sucesso - DynamoDB");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, " ***** ⚠️ - Erro ao aplicar as migrations - DynamoDB");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, " ***** ⚠️ - Erro ao aplicar as migrations - DynamoDB");
-                }
-
             }
         }
 

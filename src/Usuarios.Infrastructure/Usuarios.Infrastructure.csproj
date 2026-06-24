@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.19" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.4.3" />
+    <PackageReference Include="AWSSDK.SQS" Version="4.0.3.8" />
     <PackageReference Include="MassTransit" Version="8.0.0" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
