@@ -101,10 +101,11 @@ public class AtivarUsuarioCommandHandlerTests
     private readonly Mock<IBaseLogger<AtivarUsuarioCommandHandler>> _loggerMock = new();
     private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly Mock<IUsuarioDomainService> _domainServiceMock = new();
+    private readonly Mock<ICacheService> _cacheServiceMock = new();
 
     private AtivarUsuarioCommandHandler CriarHandler() =>
         new(_repositoryMock.Object, _userContextMock.Object, _loggerMock.Object,
-            _messageServiceMock.Object, _domainServiceMock.Object);
+            _messageServiceMock.Object, _domainServiceMock.Object, _cacheServiceMock.Object);
 
     [Fact]
     public async Task HandleAsync_DeveRetornarSucesso_QuandoGestorAtivaUsuarioSuspenso()
