@@ -14,15 +14,19 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IBaseLogger<AtivarUsuarioCommandHandler> _logger;
         private readonly IMessageService _messageService;
         private readonly IUsuarioDomainService _usuarioDomainService;
+        private readonly ICacheService _cacheService;
 
         public AtivarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<AtivarUsuarioCommandHandler> logger, IMessageService messageService, IUsuarioDomainService usuarioDomainService)
+            IBaseLogger<AtivarUsuarioCommandHandler> logger, IMessageService messageService, IUsuarioDomainService usuarioDomainService,
+            ICacheService cacheService)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
             _messageService = messageService;
             _usuarioDomainService = usuarioDomainService;
+            _cacheService = cacheService;
+
         }
 
         public async Task<Result<bool>> HandleAsync(AtivarUsuarioCommand command, CancellationToken ct)
@@ -58,6 +62,10 @@ namespace Usuarios.Application.Features.Usuarios
                 // 3 - Modifica o status do usuario para ACTIVE
                 usuario.Ativar(solicitante.Email);
                 await _usuarioRepository.AlterarAsync(usuario);
+
+                // 4 - Remove usuario do cache
+                var cacheKey = $"usuario:{command.Email}";
+                await _cacheService.RemoveAsync(cacheKey);
 
                 return Result<bool>.Success(true);
             }
