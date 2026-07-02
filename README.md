@@ -23,6 +23,7 @@ Responsável por:
 - [Eventos de Domínio](#eventos-de-dominio)
 - [Testes](#testes)
 - [Estrutura do Projeto](#estrutura-do-projeto)
+- [Github Actions](#github-actions)
 
 
 ---
@@ -181,3 +182,8 @@ ES.ConexaoSolidaria.Usuarios/
 ```
 
 Projeto desenvolvido para o Hackathon **POSTECH** — grupo 1.
+
+## Github Actions
+
+O repositório contém um pipeline GitHub Actions, acionado a cada push na branch principal. O pipeline compila o código (.NET build), executa os testes e gera a imagem Docker.
+
