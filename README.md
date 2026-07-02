@@ -20,9 +20,10 @@ Responsável por:
 - [Como Rodar Localmente](#como-rodar-localmente)
 - [Variáveis de Ambiente](#variáveis-de-ambiente)
 - [Observabilidade](#observabilidade)
+- [Eventos de Domínio](#eventos-de-dominio)
 - [Testes](#testes)
 - [Estrutura do Projeto](#estrutura-do-projeto)
-- [Repositórios Relacionados](#repositórios-relacionados)
+
 
 ---
 
