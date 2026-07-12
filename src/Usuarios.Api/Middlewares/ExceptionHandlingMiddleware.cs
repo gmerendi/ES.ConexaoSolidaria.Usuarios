@@ -28,9 +28,12 @@ public class ExceptionHandlingMiddleware
         }
         catch (DomainException ex)
         {
-            _logger.LogError(message: $"Erro de negócio detectado: " + ex.ErrorCode + " - " + ex.Message, BaseLogType.LOG,
-                            data: ex, 
-                            correlationId: correlationId
+            _logger.LogError(
+                            "Erro de negócio detectado: {ErrorCode} - {ExceptionMsg}",
+                            BaseLogType.LOG,
+                            ex,
+                            new { ErrorCode = ex.ErrorCode },
+                            correlationId
                             );
 
             // 1. Extrai o status code (ex: 422, 400, 403) baseado no início do ErrorCode
@@ -57,8 +60,10 @@ public class ExceptionHandlingMiddleware
         }
         catch (BadHttpRequestException ex) // Captura falhas de validação de modelo/Data Annotations
         {
-            _logger.LogWarning(message: $"Falha na validação dos dados de entrada: " + ex.Message, BaseLogType.LOG,
-                                data: ex,
+            _logger.LogWarning(
+                                "Falha na validação dos dados de entrada: {ExceptionMsg}",
+                                BaseLogType.LOG,
+                                ex,
                                 correlationId: correlationId
                                 );
 
@@ -72,10 +77,12 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(message: $"Ocorreu um erro não tratado no servidor: " + ex.Message, BaseLogType.LOG,
-                                data: ex,
-                                correlationId: correlationId
-                                );
+            _logger.LogError(
+                            "Ocorreu um erro não tratado no servidor: {ExceptionMsg}",
+                            BaseLogType.LOG,
+                            ex,
+                            correlationId: correlationId
+                            );
 
             string codigoErroInesperado = "500_ERRO_INESPERADO";
             string mensagemInesperada = ErrorMessages.GetString(codigoErroInesperado);

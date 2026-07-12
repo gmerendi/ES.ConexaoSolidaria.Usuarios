@@ -37,7 +37,7 @@ namespace Usuarios.Application.Features.Auth
 
             try
             {
-                _logger.LogInformation("Tentativa de login iniciada para o e-mail: " + command.Email, BaseLogType.LOG, command.Email);
+                _logger.LogInformation("Tentativa de login iniciada para o e-mail: {Email}", BaseLogType.LOG, new { Email = command.Email });
 
                 var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Email, ct);
 
@@ -73,7 +73,7 @@ namespace Usuarios.Application.Features.Auth
             }
             catch (Exception ex)
             {
-                _logger.LogError("Erro ao fazer login: " + ex.Message, BaseLogType.LOG, ex.Message);
+                _logger.LogError("Erro ao fazer login: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao fazer o login. " + ex.Message);
             }
         }

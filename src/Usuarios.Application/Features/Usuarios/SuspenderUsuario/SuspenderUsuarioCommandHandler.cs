@@ -11,20 +11,17 @@ namespace Usuarios.Application.Features.Usuarios
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
-        private readonly IBaseLogger<RemoverUsuarioCommandHandler> _logger;
+        private readonly IBaseLogger<SuspenderUsuarioCommandHandler> _logger;
         private readonly ICacheService _cacheService;
-        private readonly IMessageService _messageService;
         private readonly IUsuarioDomainService _usuarioDomainService;
 
         public SuspenderUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<RemoverUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
-            IUsuarioDomainService usuarioDomainService)
+            IBaseLogger<SuspenderUsuarioCommandHandler> logger, ICacheService cacheService, IUsuarioDomainService usuarioDomainService)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
             _cacheService = cacheService;
-            _messageService = messageService;
             _usuarioDomainService = usuarioDomainService;
         }
 
@@ -38,7 +35,7 @@ namespace Usuarios.Application.Features.Usuarios
 
             try
             {
-                _logger.LogInformation("Tentativa de suspencao de usuario iniciada para o email: " + command.Email, BaseLogType.LOG, command);
+                _logger.LogInformation("Tentativa de suspencao de usuario iniciada para o email: {Email}", BaseLogType.LOG, new { Email = command.Email });
 
                 //2 - Buscar solicitante. Somente GESTOR_ONG pode suspender um usuario.
                 // Porem um GESTOR_ONG não pode suspender o seu proprio perfil.               
@@ -72,8 +69,8 @@ namespace Usuarios.Application.Features.Usuarios
             {
                 throw; 
             }
-            catch (Exception ex) {  
-                _logger.LogError("Erro ao remover usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+            catch (Exception ex) {
+                _logger.LogError("Erro ao suspender usuario: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao remover  o usuário. " + ex.Message);
             }
         }   

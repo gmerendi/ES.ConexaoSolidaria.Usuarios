@@ -92,18 +92,19 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando criação de usuario: " + request.Email, BaseLogType.LOG, request.Email);
+        _logger.LogInformation("Iniciando criação de usuario: {Email}", BaseLogType.LOG, new { Email = request.Email });
+
         var command = new CriarUsuarioCommand(request.NomeCompleto, request.Email, request.Cpf, request.Password);
         
         var result = await _criarUsuarioCommandHandler.HandleAsync(command, ct);
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario criado com sucesso: " + result.Value.Email, BaseLogType.LOG, result.Value.Email);
+        _logger.LogInformation("Usuario criado com sucesso: {Email}", BaseLogType.LOG, new { Email = result.Value.Email });
         return Created("Usuario criado com sucesso", result);
     }
 
@@ -125,8 +126,9 @@ public class UsuarioController : ControllerBase
     /// * **Email:**
     ///   - `O campo E-mail é obrigatório.`
     ///   - `Formato de e-mail deve ser válido.`
-    ///   Doadores consultam seu próprio perfil.
-    ///   Gestores podem consultar qualquer perfil
+    ///   
+    /// Doadores consultam seu próprio perfil.
+    /// Gestores podem consultar qualquer perfil
     /// 
     /// </remarks>
     /// <param name="request"></param>
@@ -143,7 +145,7 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ObterUsuario([FromQuery] ObterUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando busca de usuario: " + request.Email, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando busca de usuario: {Email}", BaseLogType.LOG, new { Email = request.Email });
 
         var command = new ObterUsuarioQuery(request.Email);
 
@@ -151,11 +153,11 @@ public class UsuarioController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario obtido com sucesso: " + result.Value?.Email, BaseLogType.LOG, result);
+        _logger.LogInformation("Usuario obtido com sucesso: {Email}", BaseLogType.LOG, new { Email = result.Value?.Email });
         return Ok(result.Value);
     }
 
@@ -198,7 +200,7 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RemoverUsuario([FromQuery] RemoverUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando remocao de usuario: " + request.Email, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando remocao de usuario: {Email}", BaseLogType.LOG, new { Email = request.Email });
 
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
@@ -208,11 +210,11 @@ public class UsuarioController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario removido com sucesso: " + request.Email, BaseLogType.LOG, result);
+        _logger.LogInformation("Usuario removido com sucesso: {Email}", BaseLogType.LOG, new { Email = request.Email });
         return Ok("Usuario removido com sucesso: " + request.Email);
     }
 
@@ -250,7 +252,7 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SuspenderUsuario([FromQuery] SuspenderUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando suspensao de usuario: " + request.Email, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando suspensao de usuario: {Email}", BaseLogType.LOG, new { Email = request.Email });
 
         var command = new SuspenderUsuarioCommand(request.Email);
 
@@ -258,11 +260,11 @@ public class UsuarioController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario suspenso com sucesso: " + request.Email, BaseLogType.LOG, result);
+        _logger.LogInformation("Usuario suspenso com sucesso: {Email}", BaseLogType.LOG, new { Email = request.Email });
         return Ok("Usuario suspenso com sucesso: " + request.Email);
     }
 
@@ -300,7 +302,7 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AtivarUsuario([FromQuery] AtivarUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando ativação de usuario: " + request.Email, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando ativação de usuario: {Email}", BaseLogType.LOG, new { Email = request.Email });
 
         var command = new AtivarUsuarioCommand(request.Email);
 
@@ -308,11 +310,12 @@ public class UsuarioController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario ativado com sucesso: " + request.Email, BaseLogType.LOG, result);
+
+        _logger.LogInformation("Usuario ativado com sucesso: {Email}", BaseLogType.LOG, new { Email = request.Email });
         return Ok("Usuario ativado com sucesso: " + request.Email);
     }
 
@@ -351,7 +354,8 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AlterarPerfilParaGestor([FromQuery] AlterarPerfilParaGestorRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando alteração de perfil para gestor: " + request.Email, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando alteração de perfil para gestor: {Email}", BaseLogType.LOG, new { Email = request.Email });
+
 
         var command = new AlterarPerfilParaGestorCommand(request.Email);
 
@@ -359,11 +363,11 @@ public class UsuarioController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Perfil atualizado com sucesso: " + request.Email, BaseLogType.LOG, result);
+        _logger.LogInformation("Perfil atualizado com sucesso: {Email}", BaseLogType.LOG, new { Email = request.Email, Perfil = "GESTOR_ONG" });
         return Ok("Perfil atualizado com sucesso: " + request.Email);
     }
 
@@ -402,7 +406,7 @@ public class UsuarioController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AlterarPerfilParaDoador([FromQuery] AlterarPerfilParaDoadorRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando alteração de perfil para doador: " + request.Email, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando alteração de perfil para doador: {Email}", BaseLogType.LOG, new { Email = request.Email });
 
         var command = new AlterarPerfilParaDoadorCommand(request.Email);
 
@@ -410,11 +414,11 @@ public class UsuarioController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Perfil atualizado com sucesso: " + request.Email, BaseLogType.LOG, result);
+        _logger.LogInformation("Perfil atualizado com sucesso: {Email}", BaseLogType.LOG, new { Email = request.Email, Perfil = "DOADOR" });
         return Ok("Perfil atualizado com sucesso: " + request.Email);
     }
 
@@ -460,7 +464,8 @@ public class UsuarioController : ControllerBase
         var emailLogado = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
                          ?? User.FindFirst("email")?.Value;
 
-        _logger.LogInformation("Iniciando alteracao de usuario: " + emailLogado, BaseLogType.LOG, request);
+        _logger.LogInformation("Iniciando alteracao de usuario: {Email}", BaseLogType.LOG, 
+            new { Email = emailLogado, Nome = request.NomeCompleto, Cpf = request.Cpf });
 
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
@@ -470,11 +475,12 @@ public class UsuarioController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario alterado com sucesso: " + emailLogado, BaseLogType.LOG, result.Value);
+        _logger.LogInformation("Usuario alterado com sucesso: {Email}", BaseLogType.LOG, 
+            new { Email = result.Value.Email, Nome = result.Value.NomeCompleto });
         return Ok(result.Value);
     }
 }

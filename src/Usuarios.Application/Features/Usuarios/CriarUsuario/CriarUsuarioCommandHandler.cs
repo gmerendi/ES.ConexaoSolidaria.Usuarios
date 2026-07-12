@@ -37,7 +37,7 @@ namespace Usuarios.Application.Features.Usuarios
 
             try
             {
-                _logger.LogInformation("Tentativa de criacao de usuario iniciada para o e-mail: " + command.Email, BaseLogType.LOG, command.Email);
+                _logger.LogInformation("Tentativa de criacao de usuario iniciada para o e-mail: {Email}", BaseLogType.LOG, new { Email = command.Email });
                 // 2 - Verificar se usuario já existe
                 var usuarioExistente = await _usuarioRepository.ObterPorEmailAsync(command.Email, ct);
 
@@ -88,8 +88,8 @@ namespace Usuarios.Application.Features.Usuarios
             {
                 throw; 
             }
-            catch (Exception ex) {  
-                _logger.LogError("Erro ao cadastrar usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+            catch (Exception ex) {
+                _logger.LogError("Erro ao cadastrar usuario: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao cadastrar o usuário. " + ex.Message);
             }
         }   

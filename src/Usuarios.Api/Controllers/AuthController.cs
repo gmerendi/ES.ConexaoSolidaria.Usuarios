@@ -60,18 +60,18 @@ public class AuthController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] LogarUsuarioRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("Iniciando login de usuario: " + request.Email, BaseLogType.LOG, request.Email);
+        _logger.LogInformation("Iniciando login de usuario: {Email}", BaseLogType.LOG, new { Email = request.Email });
         var command = new LogarUsuarioCommand(request.Email, request.Password);
 
         var result = await _logarUsuarioHandler.HandleAsync(command, ct);
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no login: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario logado com sucesso: " + request.Email, BaseLogType.LOG, result.Value.Email);
+        _logger.LogInformation("Usuario logado com sucesso: {Email}", BaseLogType.LOG, new { Email = result.Value.Email });
         return Ok(result.Value);
     }
 
@@ -108,7 +108,7 @@ public class AuthController : ControllerBase
 
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-        _logger.LogInformation("Iniciando logout de usuario: " + emailLogado, BaseLogType.LOG, token);
+        _logger.LogInformation("Iniciando logout de usuario: {Email}", BaseLogType.LOG, new { Email = emailLogado });
 
         var command = new DeslogarUsuarioCommand(token);
 
@@ -116,11 +116,11 @@ public class AuthController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no logout: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Usuario deslogado com sucesso: " + emailLogado, BaseLogType.LOG, null);
+        _logger.LogInformation("Usuario deslogado com sucesso: {Email}", BaseLogType.LOG, new { Email = emailLogado });
         return Ok(result.Value);
     }
 
@@ -169,7 +169,7 @@ public class AuthController : ControllerBase
 
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-        _logger.LogInformation("Iniciando reset de senha para usuario: " + emailLogado, BaseLogType.LOG, null);
+        _logger.LogInformation("Iniciando reset de senha para usuario: {Email}", BaseLogType.LOG, new { Email = emailLogado });
 
         var command = new ResetarSenhaCommand(request.PasswordAtual, request.PasswordNovo, token);
 
@@ -177,11 +177,11 @@ public class AuthController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogError(result.Error, BaseLogType.LOG, result);
+            _logger.LogError("Falha no logout: {ErrorCode}", BaseLogType.LOG, new { ErrorCode = result.Error });
             return BadRequest(result.Error);
         }
 
-        _logger.LogInformation("Senha resetada com sucesso para usuario: " + emailLogado, BaseLogType.LOG, null);
+        _logger.LogInformation("Senha resetada com sucesso para usuario: {Email}", BaseLogType.LOG, new { Email = emailLogado });
         return Ok(result.Value);
     }
 }

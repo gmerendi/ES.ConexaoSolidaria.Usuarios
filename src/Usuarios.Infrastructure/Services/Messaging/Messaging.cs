@@ -14,7 +14,6 @@ namespace Usuarios.Infrastructure.Services.Messaging
     {
         private readonly IPublishEndpoint _publish;
         private readonly string _userCreatedQueueUrl;
-        private readonly string _userRemovedQueueUrl;
         private readonly string _applicationType;
         private readonly IBaseLogger<MessageService> _logger;
         private readonly ICorrelationIdGenerator _correlationIdGenerator;
@@ -45,7 +44,7 @@ namespace Usuarios.Infrastructure.Services.Messaging
             if (_applicationType == "LOCAL")
             {
                 await SendUserCreatedEventMessageRabbit(guidUser, nome, email, cpf, ct);
-            } 
+            }
             else if (_applicationType == "LAB")
             {
                 await SendUserCreatedEventMessageSQS(guidUser, nome, email, cpf, ct);
@@ -70,11 +69,11 @@ namespace Usuarios.Infrastructure.Services.Messaging
             {
                 var eventMessage = new UserCreatedEvent(guidUser, nome, email, Cpf.Anonymize(cpf), _correlationIdGenerator.Get());
                 await _publish.Publish(eventMessage, ct);
-                _logger.LogInformation("Evento UserCreatedEvent publicado para o Broker. Email: " + email, BaseLogType.EVENT, eventMessage);
+                _logger.LogInformation("Evento UserCreatedEvent publicado no RabbitMQ: {Email}", BaseLogType.EVENT, new { Email = email, GuidUser = guidUser });
             }
             catch (Exception ex)
             {
-                _logger.LogError("Erro ao publicar evento UserCreatedEvent para o Broker : " + email, BaseLogType.EVENT, ex);
+                _logger.LogError("Erro ao publicar UserCreatedEvent no RabbitMQ: {Email}", BaseLogType.EVENT, ex, new { Email = email, GuidUser = guidUser });
                 throw;
             }
 
@@ -93,21 +92,21 @@ namespace Usuarios.Infrastructure.Services.Messaging
                 email = email,
                 cpf = Cpf.Anonymize(cpf),
                 correlationId = _correlationIdGenerator.Get()
-            };           
+            };
 
             try
             {
                 var messageBody = JsonSerializer.Serialize(message);
-                var response = await _sqsClient.SendMessageAsync(new SendMessageRequest
+                await _sqsClient.SendMessageAsync(new SendMessageRequest
                 {
                     QueueUrl = _userCreatedQueueUrl,
-                    MessageBody = messageBody  
+                    MessageBody = messageBody
                 });
-                _logger.LogInformation("Evento UserCreatedEvent publicado para o SQS. Email: " + email, BaseLogType.EVENT, message);
+                _logger.LogInformation("Evento UserCreatedEvent publicado no SQS: {Email}", BaseLogType.EVENT, new { Email = email, GuidUser = guidUser, Queue = _userCreatedQueueUrl });
             }
             catch (Exception ex)
             {
-                _logger.LogError("Erro ao publicar evento UserCreatedEvent para o SQS : " + email, BaseLogType.EVENT, ex);
+                _logger.LogError("Erro ao publicar UserCreatedEvent no SQS: {Email}", BaseLogType.EVENT, ex, new { Email = email, GuidUser = guidUser, Queue = _userCreatedQueueUrl });
                 throw;
             }
 

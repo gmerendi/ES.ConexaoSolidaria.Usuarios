@@ -40,7 +40,9 @@ namespace Usuarios.Application.Features.Usuarios
                 var solicitante = _userContext.GetUser() ?? null;
                 var usuarioSolicitante = await _usuarioRepository.ObterPorEmailAsync(solicitante.Email);
                 var usuario = await _usuarioRepository.ObterPorEmailAsync(solicitante.Email);
-                _logger.LogInformation("Tentativa de alteracao de usuario iniciada para o email: " + usuario.Email.Endereco, BaseLogType.LOG, command);
+
+                _logger.LogInformation("Tentativa de alteracao de usuario iniciada para o email: {Email}", BaseLogType.LOG, 
+                    new { Email = usuario.Email.Endereco, Nome = command.NomeCompleto, Cpf = command.Cpf });
 
                 if (usuario == null)
                 {
@@ -80,8 +82,8 @@ namespace Usuarios.Application.Features.Usuarios
             {
                 throw; 
             }
-            catch (Exception ex) {  
-                _logger.LogError("Erro ao alterar usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+            catch (Exception ex) {
+                _logger.LogError("Erro ao alterar usuario: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao alterar o usuário. " + ex.Message);
             }
         }   

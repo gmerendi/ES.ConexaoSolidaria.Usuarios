@@ -34,7 +34,7 @@ namespace Usuarios.Application.Features.Usuarios
 
             try
             {
-                _logger.LogInformation("Tentativa de busca de usuario iniciada para o email: " + command.Email, BaseLogType.LOG, command);
+                _logger.LogInformation("Tentativa de busca de usuario iniciada para o email: {Email}", BaseLogType.LOG, new { Email = command.Email });
 
                 //2 - Buscar solicitante. Caso seja Doador, somente pode obter o próprio perfil
                 var solicitante = _userContext.GetUser() ?? null;
@@ -58,7 +58,7 @@ namespace Usuarios.Application.Features.Usuarios
                 // 4 - Buscar usuario - não encontrado no cache
                 if (usuario == null)
                 {
-                    _logger.LogInformation("Usuario não encontrado no cache, buscando no banco: " + command.Email, BaseLogType.LOG, command.Email);
+                    _logger.LogInformation("Usuario não encontrado no cache, buscando no banco: {Email}", BaseLogType.LOG, new { Email = command.Email });
 
                     var usuarioDb = await _usuarioRepository.ObterPorEmailAsync(command.Email, ct);
                     if (usuarioDb == null)
@@ -71,7 +71,7 @@ namespace Usuarios.Application.Features.Usuarios
                 }
                 else
                 {
-                    _logger.LogInformation("Usuario encontrado no cache: " + command.Email, BaseLogType.LOG, command.Email);
+                    _logger.LogInformation("Usuario encontrado no cache: {Email}", BaseLogType.LOG, new { Email = command.Email });
                 }
 
                 var response = new ObterUsuarioResponse
@@ -89,8 +89,8 @@ namespace Usuarios.Application.Features.Usuarios
             {
                 throw; 
             }
-            catch (Exception ex) {  
-                _logger.LogError("Erro ao obter usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+            catch (Exception ex) {
+                _logger.LogError("Erro ao obter usuario: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao obter o usuário. " + ex.Message);
             }
         }   
