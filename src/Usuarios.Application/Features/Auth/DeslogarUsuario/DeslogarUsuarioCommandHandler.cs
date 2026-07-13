@@ -33,7 +33,7 @@ namespace Usuarios.Application.Features.Auth
             try
             {
                 var solicitante = _userContext.GetUser();
-                _logger.LogInformation("Tentativa de logout iniciada para o email: " + solicitante?.Email, BaseLogType.LOG, command);
+                _logger.LogInformation("Tentativa de logout iniciada para o email: {Email}", BaseLogType.LOG, new { Email = solicitante?.Email });
 
                 var tempoExpiracao = _tokenService.GetTokenTimeToExpire(command.Token);
                 await _cacheService.SetBlacklistAsync(command.Token, tempoExpiracao, ct);
@@ -55,7 +55,7 @@ namespace Usuarios.Application.Features.Auth
             }
             catch (Exception ex)
             {
-                _logger.LogError("Erro ao fazer logout: " + ex.Message, BaseLogType.LOG, ex.Message);
+                _logger.LogError("Erro ao fazer logout: {ExceptionMsg}", BaseLogType.LOG, ex, correlationId: null);
                 throw new ApplicationException("Ocorreu um erro ao fazer o logout. " + ex.Message);
             }
         }

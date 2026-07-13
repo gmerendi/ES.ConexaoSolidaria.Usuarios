@@ -11,11 +11,12 @@ namespace Usuarios.Infrastructure.Services.Cache
         private readonly IBaseLogger<CacheService> _logger;
         private const string BlacklistPrefix = "blacklist:";
 
-        // ✅ Criamos as opções globais de serialização para aceitar PascalCase e camelCase
         private readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
         };
+
+
 
         public CacheService(IConnectionMultiplexer redis, IBaseLogger<CacheService> logger)
         {
@@ -23,13 +24,16 @@ namespace Usuarios.Infrastructure.Services.Cache
             _logger = logger;
         }
 
+
+
         public async Task SetBlacklistAsync(string token, TimeSpan expiration, CancellationToken ct = default)
         {
             string key = $"{BlacklistPrefix}{token}";
-
             await SetAsync(key, "revogado", expiration);
-            _logger.LogInformation("Token adicionado com sucesso à Blacklist.", BaseLogType.LOG, key);
+            _logger.LogInformation("Token adicionado à Blacklist.", BaseLogType.LOG, new { Key = key });
         }
+
+
 
         public async Task<bool> IsBlacklistedAsync(string token, CancellationToken ct = default)
         {
@@ -37,7 +41,7 @@ namespace Usuarios.Infrastructure.Services.Cache
             {
                 if (!_redis.IsConnected)
                 {
-                    _logger.LogWarning("Redis não está conectado - Falha ao checar blacklist", BaseLogType.LOG, token);
+                    _logger.LogWarning("Redis não está conectado - falha ao checar blacklist.", BaseLogType.LOG);
                     return true;
                 }
 
@@ -46,18 +50,17 @@ namespace Usuarios.Infrastructure.Services.Cache
                 bool exists = await db.KeyExistsAsync(key);
 
                 if (exists)
-                {
-                    _logger.LogWarning("Tentativa de acesso com Token que está na Blacklist!", BaseLogType.LOG, key);
-                }
+                    _logger.LogWarning("Tentativa de acesso com token na Blacklist.", BaseLogType.LOG, new { Key = key });
 
                 return exists;
             }
             catch (Exception ex)
             {
-                _logger.LogError("Falha ao checar blacklist no Redis: " + ex.Message, BaseLogType.LOG, ex);
+                _logger.LogError("Falha ao checar blacklist no Redis.", BaseLogType.LOG, ex);
                 return true;
             }
         }
+
 
         public async Task SetAsync<T>(string key, T value, TimeSpan expiration)
         {
@@ -65,22 +68,21 @@ namespace Usuarios.Infrastructure.Services.Cache
             {
                 if (!_redis.IsConnected)
                 {
-                    _logger.LogWarning("Redis não esta conectado - tentativa gravacao", BaseLogType.LOG, value);
+                    _logger.LogWarning("Redis não está conectado - tentativa de gravação.", BaseLogType.LOG, new { Key = key });
                     return;
                 }
+
                 var db = _redis.GetDatabase();
-
-                // Se o valor já for uma string, não precisamos serializar (evita aspas duplas extras)
                 string json = value is string strValue ? strValue : JsonSerializer.Serialize(value, _jsonOptions);
-
                 await db.StringSetAsync(key, json, expiration);
-                _logger.LogInformation("Dado gravado no Redis.", BaseLogType.LOG, value);
+                _logger.LogInformation("Dado gravado no Redis.", BaseLogType.LOG, new { Key = key });
             }
             catch (Exception ex)
             {
-                _logger.LogError("Redis Indisponível: " + ex.Message, BaseLogType.LOG, ex);
+                _logger.LogError("Redis indisponível.", BaseLogType.LOG, ex);
             }
         }
+
 
         public async Task<T?> GetAsync<T>(string key)
         {
@@ -88,31 +90,28 @@ namespace Usuarios.Infrastructure.Services.Cache
             {
                 if (!_redis.IsConnected)
                 {
-                    _logger.LogWarning("Redis não esta conectado - tentativa busca", BaseLogType.LOG, key);
+                    _logger.LogWarning("Redis não está conectado - tentativa de busca.", BaseLogType.LOG, new { Key = key });
                     return default;
                 }
+
                 var db = _redis.GetDatabase();
                 var data = await db.StringGetAsync(key);
-
-                _logger.LogInformation("Dado retornado do Redis", BaseLogType.LOG, data);
+                _logger.LogInformation("Dado retornado do Redis.", BaseLogType.LOG, new { Key = key });
 
                 if (data.IsNullOrEmpty) return default;
 
-                // ✅ SE O TIPO SOLICITADO FOR STRING: Retorna o texto bruto diretamente
                 if (typeof(T) == typeof(string))
-                {
                     return (T)(object)data.ToString();
-                }
 
-                // ✅ SE FOR OBJETO: Deserializa usando as opções de Case Insensitive
                 return JsonSerializer.Deserialize<T>(data!, _jsonOptions);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Erro ao deserializar chave {key}: {ex.Message}", BaseLogType.LOG, ex);
+                _logger.LogError("Erro ao deserializar chave do Redis: {Key}", BaseLogType.LOG, ex, new { Key = key });
                 return default;
             }
         }
+
 
         public async Task RemoveAsync(string key)
         {
@@ -120,18 +119,20 @@ namespace Usuarios.Infrastructure.Services.Cache
             {
                 if (!_redis.IsConnected)
                 {
-                    _logger.LogWarning("Redis não esta conectado - tentativa remocao", BaseLogType.LOG, key);
+                    _logger.LogWarning("Redis não está conectado - tentativa de remoção.", BaseLogType.LOG, new { Key = key });
                     return;
                 }
+
                 var db = _redis.GetDatabase();
                 await db.KeyDeleteAsync(key);
-                _logger.LogInformation("Dado removido do Redis: " + key, BaseLogType.LOG, key);
+                _logger.LogInformation("Dado removido do Redis: {Key}", BaseLogType.LOG, new { Key = key });
             }
             catch (Exception ex)
             {
-                _logger.LogError("Falha ao remover chave do Redis: " + ex.Message, BaseLogType.LOG, ex);
+                _logger.LogError("Falha ao remover chave do Redis.", BaseLogType.LOG, ex);
             }
         }
+
 
 
         public async Task RemoveByPrefixAsync(string prefix)
@@ -143,18 +144,17 @@ namespace Usuarios.Infrastructure.Services.Cache
 
                 if (!keys.Any())
                 {
-                    _logger.LogInformation($"Nenhuma key encontrada com prefixo: {prefix}", BaseLogType.LOG, prefix);
+                    _logger.LogInformation("Nenhuma key encontrada com prefixo: {Prefix}", BaseLogType.LOG, new { Prefix = prefix });
                     return;
                 }
 
                 var db = _redis.GetDatabase();
                 await db.KeyDeleteAsync(keys);
-
-                _logger.LogInformation($"{keys.Length} keys removidas com prefixo: {prefix}", BaseLogType.LOG, prefix);
+                _logger.LogInformation("{Count} keys removidas com prefixo: {Prefix}", BaseLogType.LOG, new { Count = keys.Length, Prefix = prefix });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Erro ao remover keys com prefixo {prefix}: {ex.Message}", BaseLogType.LOG, ex);
+                _logger.LogError("Erro ao remover keys com prefixo: {Prefix}", BaseLogType.LOG, ex, new { Prefix = prefix });
             }
         }
     }

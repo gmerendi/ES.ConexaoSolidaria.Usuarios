@@ -12,8 +12,6 @@ namespace Usuarios.Application.Extensions
         public static IServiceCollection AddUseCaseServices(this IServiceCollection services, ILogger logger)
         {
             // ApplicationServices
-            
-
             services.AddScoped<IUseCaseHandler<CriarUsuarioCommand, Result<CriarUsuarioResponse>>, CriarUsuarioCommandHandler>();
             services.AddScoped<IUseCaseHandler<ObterUsuarioQuery, Result<ObterUsuarioResponse>>, ObterUsuarioQueryHandler>();
             services.AddScoped<IUseCaseHandler<LogarUsuarioCommand, Result<LogarUsuarioResponse>>, LogarUsuarioCommandHandler>();

@@ -23,21 +23,20 @@ public class AuditInterceptor : SaveChangesInterceptor
     // 1. CAPTURA: Antes de salvar (ainda temos acesso aos valores originais)
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
-        _logger.LogInformation("SavingChanges disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
+        _logger.LogInformation("SavingChanges disparado - capturando dados de auditoria.", BaseLogType.LOG);
         CaptureChanges(eventData.Context);
         return result;
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("SavingChangesAsync disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
+        _logger.LogInformation("SavingChangesAsync disparado - capturando dados de auditoria.", BaseLogType.LOG);
         CaptureChanges(eventData.Context);
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
     private void CaptureChanges(DbContext? context)
     {
-        _logger.LogInformation("CaptureChanges disparado - Capturando dados de auditoria", BaseLogType.LOG, context);
         if (context == null) return;
 
         var entries = context.ChangeTracker.Entries()
@@ -52,18 +51,16 @@ public class AuditInterceptor : SaveChangesInterceptor
             var entity = (EntityBase)entry.Entity;
             var tableName = entry.Metadata.GetTableName()?.ToUpper() ?? "UNKNOWN";
 
-            // Montagem das chaves padrão DynamoDB
             var audit = new AuditLog
             {
                 PK = $"ENTITY#{tableName}#{entity.Guid}",
                 SK = $"TS#{DateTime.UtcNow:O}",
                 ResourceId = entity.Guid.ToString(),
-                ServiceName = "CS-USUARIOS-API", 
+                ServiceName = "CS-USUARIOS-API",
                 Operation = entry.State.ToString().ToUpper(),
                 ExpirationTime = DateTimeOffset.UtcNow.AddYears(1).ToUnixTimeSeconds()
             };
 
-            // Lógica de Diff/Payload
             object? auditData = null;
             if (entry.State == EntityState.Modified)
             {
@@ -76,35 +73,35 @@ public class AuditInterceptor : SaveChangesInterceptor
             }
             else
             {
-                auditData = entry.Properties.ToDictionary(p => p.Metadata.Name, p => Normalize(p.CurrentValue));
+                auditData = entry.Properties
+                    .ToDictionary(p => p.Metadata.Name, p => Normalize(p.CurrentValue));
             }
 
             audit.Payload = JsonSerializer.Serialize(auditData);
             list.Add(audit);
         }
-        var count = list.Count;
+
         _auditEntries.Value = list;
-        _logger.LogInformation("AuditEntries para ser gravadas: " + count.ToString(), BaseLogType.LOG, list);
+        _logger.LogInformation("{Count} entradas de auditoria capturadas.", BaseLogType.LOG, new { Count = list.Count });
     }
 
     // 2. PERSISTÊNCIA: Após o sucesso no banco relacional
     public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("SavedChangesAsync disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
+        _logger.LogInformation("SavedChangesAsync disparado - persistindo auditoria.", BaseLogType.LOG);
         await PersistAuditAsync();
         return result;
     }
 
     public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
     {
-        _logger.LogInformation("SavedChanges disparado - Capturando dados de auditoria", BaseLogType.LOG, eventData);
+        _logger.LogInformation("SavedChanges disparado - persistindo auditoria.", BaseLogType.LOG);
         PersistAuditAsync().GetAwaiter().GetResult();
         return base.SavedChanges(eventData, result);
     }
 
     private async Task PersistAuditAsync()
     {
-        _logger.LogInformation("PersistAuditAsync disparado - Capturando dados de auditoria", BaseLogType.LOG, null);
         var entries = _auditEntries.Value;
         if (entries == null || !entries.Any()) return;
 
@@ -124,12 +121,15 @@ public class AuditInterceptor : SaveChangesInterceptor
                 entry.ChangedBy = currentUser;
                 entry.IpAddress = ip;
 
+                _logger.LogInformation("Persistindo entrada de auditoria: {ResourceId} {Operation}", BaseLogType.LOG,
+                    new { ResourceId = entry.ResourceId, Operation = entry.Operation });
 
-                _logger.LogInformation("Chamando serviço de audit log", BaseLogType.LOG, entry);
                 await auditRepository.SaveRawLogAsync(entry);
             }
-            catch (Exception ex) {
-                _logger.LogInformation("Falha ao chamar serviço audit log" + ex.Message, BaseLogType.LOG, entry);
+            catch (Exception ex)
+            {
+                _logger.LogError("Falha ao persistir entrada de auditoria: {ResourceId}", BaseLogType.LOG, ex,
+                    new { ResourceId = entry.ResourceId });
             }
         }
 

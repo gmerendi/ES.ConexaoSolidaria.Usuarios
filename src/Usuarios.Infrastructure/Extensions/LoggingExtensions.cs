@@ -11,7 +11,10 @@ namespace Usuarios.Infrastructure.Extensions
         {
             services.AddTransient<ICorrelationIdGenerator, CorrelationIdGenerator>();
             logger.LogInformation(" ***** CorrelationIdGenerator service inicializado.");
-            
+
+            services.AddTransient<IBaseLoggerDbWriter, BaseLoggerDbWriter>();
+            logger.LogInformation(" ***** BaseLoggerDbWriter service inicializado.");
+
             services.AddTransient(typeof(IBaseLogger<>), typeof(BaseLogger<>));
             logger.LogInformation(" ***** BaseLogger service inicializado.");
 

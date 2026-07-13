@@ -13,18 +13,15 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IUserContext _userContext;
         private readonly IBaseLogger<RemoverUsuarioCommandHandler> _logger;
         private readonly ICacheService _cacheService;
-        private readonly IMessageService _messageService;
         private readonly IMetricsService _metrics;
 
         public RemoverUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<RemoverUsuarioCommandHandler> logger, ICacheService cacheService, IMessageService messageService, 
-            IMetricsService metrics)
+            IBaseLogger<RemoverUsuarioCommandHandler> logger, ICacheService cacheService, IMetricsService metrics)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
             _cacheService = cacheService;
-            _messageService = messageService;
             _metrics = metrics;
         }
 
@@ -38,7 +35,7 @@ namespace Usuarios.Application.Features.Usuarios
 
             try
             {
-                _logger.LogInformation("Tentativa de remocao de usuario iniciada para o email: " + command.Email, BaseLogType.LOG, command);
+                _logger.LogInformation("Tentativa de remocao de usuario iniciada para o email: {Email}", BaseLogType.LOG, new { Email = command.Email });
 
                 //2 - Buscar solicitante. Um usuario, seja ele GESTOR_ONG ou DOADOR, somente pode remover o próprio perfil
                 // O GESTOR_ONG, caso deseje desabilitar o perfil, deve modificar o status para SUSPENDED
@@ -71,8 +68,8 @@ namespace Usuarios.Application.Features.Usuarios
             {
                 throw; 
             }
-            catch (Exception ex) {  
-                _logger.LogError("Erro ao remover usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+            catch (Exception ex) {
+                _logger.LogError("Erro ao remover usuario: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao remover  o usuário. " + ex.Message);
             }
         }   

@@ -44,7 +44,7 @@ namespace Usuarios.Application.Features.Auth
                 var solicitante = _userContext.GetUser() ?? null;
                 var tempoExpiracao = _tokenService.GetTokenTimeToExpire(command.Token);
 
-                _logger.LogInformation("Tentativa de resetar senha iniciada para o email: " + solicitante.Email, BaseLogType.LOG, command);
+                _logger.LogInformation("Tentativa de resetar senha iniciada para o email: {Email}", BaseLogType.LOG, new { Email = solicitante.Email });
 
                 // 1 - Somente o próprio usuário pode resetar a senha, mesmo que seja um GESTOR_ONG.
                 var usuario = await _usuarioRepository.ObterPorEmailAsync(solicitante.Email);
@@ -87,7 +87,7 @@ namespace Usuarios.Application.Features.Auth
             }
             catch (Exception ex)
             {
-                _logger.LogError("Erro ao resetar senha: " + ex.Message, BaseLogType.LOG, ex.Message);
+                _logger.LogError("Erro ao resetar senha: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Erro ao resetar senha.");
             }
         }   

@@ -12,18 +12,16 @@ namespace Usuarios.Application.Features.Usuarios
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUserContext _userContext;
         private readonly IBaseLogger<AtivarUsuarioCommandHandler> _logger;
-        private readonly IMessageService _messageService;
         private readonly IUsuarioDomainService _usuarioDomainService;
         private readonly ICacheService _cacheService;
 
         public AtivarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUserContext userContext,
-            IBaseLogger<AtivarUsuarioCommandHandler> logger, IMessageService messageService, IUsuarioDomainService usuarioDomainService,
+            IBaseLogger<AtivarUsuarioCommandHandler> logger, IUsuarioDomainService usuarioDomainService,
             ICacheService cacheService)
         {
             _usuarioRepository = usuarioRepository;
             _userContext = userContext;
             _logger = logger;
-            _messageService = messageService;
             _usuarioDomainService = usuarioDomainService;
             _cacheService = cacheService;
 
@@ -39,7 +37,7 @@ namespace Usuarios.Application.Features.Usuarios
 
             try
             {
-                _logger.LogInformation("Tentativa de ativação de usuario iniciada para o email: " + command.Email, BaseLogType.LOG, command);
+                _logger.LogInformation("Tentativa de ativação de usuario iniciada para o email: {Email}", BaseLogType.LOG, new { Email = command.Email });
 
                 //2 - Buscar solicitante. Somente GESTOR_ONG pode ativar um usuario.
                 // Porem um GESTOR_ONG não pode ativar o seu proprio perfil.               
@@ -73,8 +71,8 @@ namespace Usuarios.Application.Features.Usuarios
             {
                 throw; 
             }
-            catch (Exception ex) {  
-                _logger.LogError("Erro ao ativar usuario: " + ex.Message, BaseLogType.LOG, ex.Message);
+            catch (Exception ex) {
+                _logger.LogError("Erro ao ativar usuario: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao ativar  o usuário. " + ex.Message);
             }
         }   

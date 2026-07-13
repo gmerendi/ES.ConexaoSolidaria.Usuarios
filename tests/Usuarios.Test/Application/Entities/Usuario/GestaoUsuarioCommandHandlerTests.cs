@@ -21,14 +21,13 @@ public class SuspenderUsuarioCommandHandlerTests
 {
     private readonly Mock<IUsuarioRepository> _repositoryMock = new();
     private readonly Mock<IUserContext> _userContextMock = new();
-    private readonly Mock<IBaseLogger<RemoverUsuarioCommandHandler>> _loggerMock = new();
+    private readonly Mock<IBaseLogger<SuspenderUsuarioCommandHandler>> _loggerMock = new();
     private readonly Mock<ICacheService> _cacheServiceMock = new();
-    private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly Mock<IUsuarioDomainService> _domainServiceMock = new();
 
     private SuspenderUsuarioCommandHandler CriarHandler() =>
         new(_repositoryMock.Object, _userContextMock.Object, _loggerMock.Object,
-            _cacheServiceMock.Object, _messageServiceMock.Object, _domainServiceMock.Object);
+            _cacheServiceMock.Object, _domainServiceMock.Object);
 
     [Fact]
     public async Task HandleAsync_DeveRetornarSucesso_QuandoGestorSuspendOutroUsuario()
@@ -99,13 +98,12 @@ public class AtivarUsuarioCommandHandlerTests
     private readonly Mock<IUsuarioRepository> _repositoryMock = new();
     private readonly Mock<IUserContext> _userContextMock = new();
     private readonly Mock<IBaseLogger<AtivarUsuarioCommandHandler>> _loggerMock = new();
-    private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly Mock<IUsuarioDomainService> _domainServiceMock = new();
     private readonly Mock<ICacheService> _cacheServiceMock = new();
 
     private AtivarUsuarioCommandHandler CriarHandler() =>
         new(_repositoryMock.Object, _userContextMock.Object, _loggerMock.Object,
-            _messageServiceMock.Object, _domainServiceMock.Object, _cacheServiceMock.Object);
+            _domainServiceMock.Object, _cacheServiceMock.Object);
 
     [Fact]
     public async Task HandleAsync_DeveRetornarSucesso_QuandoGestorAtivaUsuarioSuspenso()

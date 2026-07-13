@@ -35,7 +35,7 @@ namespace Usuarios.Application.Features.Usuarios
 
             try
             {
-                _logger.LogInformation("Tentativa de alteracao de perfil para doador iniciada para o email: " + command.Email, BaseLogType.LOG, command);
+                _logger.LogInformation("Tentativa de alteracao de perfil para doador iniciada para o email: {Email}", BaseLogType.LOG, new { Email = command.Email });
 
                 //2 - Buscar solicitante. Somente GESTOR_ONG pode suspender um usuario.
                 // Porem um GESTOR_ONG não pode suspender o seu proprio perfil.               
@@ -69,8 +69,8 @@ namespace Usuarios.Application.Features.Usuarios
             {
                 throw; 
             }
-            catch (Exception ex) {  
-                _logger.LogError("Erro ao alterar perfil para doador: " + ex.Message, BaseLogType.LOG, ex.Message);
+            catch (Exception ex) {
+                _logger.LogError("Erro ao alterar perfil para doador: {ExceptionMsg}", BaseLogType.LOG, ex);
                 throw new ApplicationException("Ocorreu um erro ao alterar o perfil para doador. " + ex.Message);
             }
         }   
