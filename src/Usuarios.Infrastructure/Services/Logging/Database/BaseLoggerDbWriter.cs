@@ -15,6 +15,7 @@ public class BaseLoggerDbWriter : IBaseLoggerDbWriter
     private readonly IAmazonDynamoDB _dynamoDb;
     private readonly ILogger<BaseLoggerDbWriter> _logger;
     private readonly string _tableName;
+    private readonly Table _tabelaAppLog;
 
     public BaseLoggerDbWriter(
         IAmazonDynamoDB dynamoDb,
@@ -23,7 +24,11 @@ public class BaseLoggerDbWriter : IBaseLoggerDbWriter
     {
         _dynamoDb = dynamoDb;
         _logger = logger;
-        _tableName = configuration["DynamoDB:LogTable"] ?? "cs-app-log";
+        var nomeTabela = configuration["DynamoDB:AppLogTable"] ?? "cs-app-log";
+        _tabelaAppLog = new TableBuilder(dynamoDb, nomeTabela)
+        .AddHashKey("CorrelationId", DynamoDBEntryType.String)
+        .AddRangeKey("Timestamp", DynamoDBEntryType.String)
+        .Build();
     }
 
     public Task WriteAsync(LogEntry entry)
@@ -33,7 +38,7 @@ public class BaseLoggerDbWriter : IBaseLoggerDbWriter
         {
             try
             {
-                var tabela = Table.LoadTable(_dynamoDb, _tableName);
+                var tabela = _tabelaAppLog;
 
                 var doc = new Document
                 {

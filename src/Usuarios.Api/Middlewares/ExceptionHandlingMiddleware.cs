@@ -26,6 +26,19 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            // cliente cancelou a requisição (fechou o browser, timeout, etc.)
+            // não loga como erro — comportamento esperado
+
+            _logger.LogInformation(
+                                "Requisição cancelada pelo usuário",
+                                BaseLogType.LOG,
+                                correlationId: correlationId
+                                );
+
+            context.Response.StatusCode = 499; // Client Closed Request (Convenção nginx, AWS)
+        }
         catch (DomainException ex)
         {
             _logger.LogError(
