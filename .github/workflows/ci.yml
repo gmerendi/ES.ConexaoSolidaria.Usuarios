@@ -39,11 +39,13 @@ jobs:
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
 
-      # 1. Executa os testes exatamente como no seu arquivo original
+      # 1. TESTES UNITARIOS --------------------------------------------------------------------------
+      
       - name: Testes unitários
         run: dotnet test ${{ env.SOLUTION_PATH }} --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
 
-      # 2. SALVA OS ARTEFATOS IMEDIATAMENTE (Antes de mexer com Docker)
+      # 2. SALVA OS ARTEFATOS IMEDIATAMENTE ---------------------------------------------------------
+      
       - name: Publicar resultados de teste
         if: always()
         uses: actions/upload-artifact@v4
@@ -58,17 +60,19 @@ jobs:
           name: coverage-report
           path: '**/coverage.cobertura.xml'
 
-      # 3. Agora que os testes estão salvos e garantidos, lidamos com a imagem e a segurança
+      # 3. IMAGEM DOCKER ---------------------------------------------------------------------------
+      
       - name: Build da imagem Docker local
         run: |
           docker build -t ${{ env.IMAGE_NAME }} -f src/Usuarios.Api/Dockerfile .
 
+      # 3. TESTE VULNERABILIDADES ------------------------------------------------------------------
       - name: Escaneamento de vulnerabilidades (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}
           format: 'template'
-          template: '@/contrib/html.tpl'
+          template: '@contrib/html.tpl'
           output: 'trivy-report.html'
           severity: 'HIGH,CRITICAL'
           exit-code: '0'
