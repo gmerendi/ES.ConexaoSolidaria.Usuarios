@@ -61,7 +61,7 @@ jobs:
       # 3. Agora que os testes estão salvos e garantidos, lidamos com a imagem e a segurança
       - name: Build da imagem Docker local
         run: |
-          docker build -t ${{ env.IMAGE_NAME }} -f src/NomeDoProjetoDaSuaAPI/Dockerfile .
+          docker build -t ${{ env.IMAGE_NAME }} -f src/Usuarios.Api/Dockerfile .
 
       - name: Escaneamento de vulnerabilidades (Trivy)
         uses: aquasecurity/trivy-action@master
