@@ -61,8 +61,15 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
         run: |
           cd usuarios
-          docker build -f $DOCKERFILE_PATH -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          # Gera o build com a tag única E com a tag latest
+          docker build -f $DOCKERFILE_PATH \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          
+          # Envia ambas as tags para o ECR
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Configurar kubeconfig do EKS
