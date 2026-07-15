@@ -14,6 +14,12 @@ env:
   MANIFEST_FILE: k8s/aws/services/cs-usuarios.yaml
   DOCKERFILE_PATH: src/Usuarios.Api/Dockerfile
 
+# ── PERMISSOES NECESSARIAS PARA SEGURANCA ──────────────────────────
+permissions:
+  contents: read           # Permite que o checkout leia o seu código
+  security-events: write   # Obrigatório para fazer o upload do relatório SARIF do Trivy
+# ───────────────────────────────────────────────────────────────────
+
 jobs:
   ci-gate:
     uses: ./.github/workflows/ci.yml
