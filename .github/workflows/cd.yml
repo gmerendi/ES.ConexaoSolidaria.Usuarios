@@ -1,4 +1,4 @@
-﻿name: CD - Build, Push & Deploy
+name: CD - Build, Push & Deploy
 
 on:
   push:
@@ -14,11 +14,9 @@ env:
   MANIFEST_FILE: k8s/aws/services/cs-usuarios.yaml
   DOCKERFILE_PATH: src/Usuarios.Api/Dockerfile
 
-# ── PERMISSOES NECESSARIAS PARA SEGURANCA ──────────────────────────
 permissions:
-  contents: read           # Permite que o checkout leia o seu código
-  security-events: write   # Obrigatório para fazer o upload do relatório SARIF do Trivy
-# ───────────────────────────────────────────────────────────────────
+  contents: read
+  security-events: write
 
 jobs:
   ci-gate:
@@ -61,15 +59,13 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
         run: |
           cd usuarios
-          # Gera o build com a tag única E com a tag latest
-          docker build -f $DOCKERFILE_PATH \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          # 1. Faz o build apenas com a tag ÚNICA (Segurança de Imutabilidade)
+          docker build -f $DOCKERFILE_PATH -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           
-          # Envia ambas as tags para o ECR
+          # 2. Envia apenas a tag única para o ECR
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Configurar kubeconfig do EKS
@@ -99,6 +95,14 @@ jobs:
             --from-literal=AWS_SESSION_TOKEN="${{ secrets.AWS_SESSION_TOKEN }}" \
             -n ${{ env.K8S_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
+
+      # INJETA A TAG NO MANIFESTO ANTES DO APPLY ───────────
+      - name: Injetar Tag da Imagem no Manifesto
+        env:
+          TAG_GERADA: ${{ steps.build-image.outputs.image_tag }}
+        run: |
+          # Substitui a palavra-chave ${IMAGE_TAG} no arquivo pelo valor real gerado neste build
+          sed -i "s/\${IMAGE_TAG}/$TAG_GERADA/g" infra/${{ env.MANIFEST_FILE }}
 
       - name: Aplicar manifest Kubernetes
         run: |
