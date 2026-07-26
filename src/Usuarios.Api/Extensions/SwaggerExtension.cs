@@ -11,7 +11,7 @@ namespace Usuarios.Api.Extensions
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "ONG Esperança Solidária... - Conexao Solidaria - Usuarios.API ",
+                    Title = "ONG Esperança Solidária - Conexao Solidaria - Usuarios.API ",
                     Version = "V.1.0.0",
                     Description = "## Tech Challenge - Fase 5\nMVP da plataforma digital Conexao solidaria. Esta API gerencia usuários e autenticação.",
                     Contact = new OpenApiContact
