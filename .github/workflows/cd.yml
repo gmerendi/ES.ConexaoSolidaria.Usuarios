@@ -1,4 +1,4 @@
-﻿name: CD - Build, Push & Deploy
+name: CD - Build, Push & Deploy
 
 on:
   push:
@@ -13,6 +13,10 @@ env:
   DEPLOYMENT_NAME: cs-usuarios-api
   MANIFEST_FILE: k8s/aws/services/cs-usuarios.yaml
   DOCKERFILE_PATH: src/Usuarios.Api/Dockerfile
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
   ci-gate:
@@ -55,13 +59,50 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
         run: |
           cd usuarios
+          # 1. Faz o build apenas com a tag ÚNICA (Segurança de Imutabilidade)
           docker build -f $DOCKERFILE_PATH -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          
+          # 2. Envia apenas a tag única para o ECR
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Configurar kubeconfig do EKS
         run: |
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+      - name: Aplicar user secrets
+        run: |
+          kubectl create secret generic cs-user-secrets \
+            --namespace=${{ env.K8S_NAMESPACE }} \
+            --from-literal=USUARIOS_POSTGRES_USER="${{ secrets.USUARIOS_POSTGRES_USER }}" \
+            --from-literal=USUARIOS_POSTGRES_PASSWORD="${{ secrets.USUARIOS_POSTGRES_PASSWORD }}" \
+            --from-literal=JWT_SECRETKEY="${{ secrets.JWT_SECRETKEY }}" \
+            --from-literal=JWT_ISSUER="${{ secrets.JWT_ISSUER }}" \
+            --from-literal=JWT_AUDIENCE="${{ secrets.JWT_AUDIENCE }}" \
+            --from-literal=JWT_EXPIRATION_HOURS="${{ secrets.JWT_EXPIRATION_HOURS }}" \
+            --from-literal=AES_KEY="${{ secrets.AES_KEY }}" \
+            --from-literal=RABBITMQ_USERNAME="${{ secrets.RABBITMQ_USERNAME }}" \
+            --from-literal=RABBITMQ_PASSWORD="${{ secrets.RABBITMQ_PASSWORD }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Aplicar aws credentials
+        run: |
+          kubectl create secret generic cs-aws-credentials \
+            --from-literal=AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            --from-literal=AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            --from-literal=AWS_SESSION_TOKEN="${{ secrets.AWS_SESSION_TOKEN }}" \
+            -n ${{ env.K8S_NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      # INJETA A TAG NO MANIFESTO ANTES DO APPLY ───────────
+      - name: Injetar Tag da Imagem no Manifesto
+        env:
+          TAG_GERADA: ${{ steps.build-image.outputs.image_tag }}
+        run: |
+          # Substitui a palavra-chave ${IMAGE_TAG} no arquivo pelo valor real gerado neste build
+          sed -i "s/\${IMAGE_TAG}/$TAG_GERADA/g" infra/${{ env.MANIFEST_FILE }}
 
       - name: Aplicar manifest Kubernetes
         run: |
